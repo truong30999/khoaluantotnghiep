@@ -14,9 +14,17 @@ exports.createCustomer = async (req, res, next) => {
             DateCmnd: req.body.DateCmnd,
             PlaceCmnd: req.body.PlaceCmnd,
             Image: req.file.path,
-            UserId : req.jwt.userId
+            UserId: req.jwt.userId,
+            RoomId: req.body.RoomID
         })
+        const room = await Room.findById(req.body.RoomId)
+        if (room.ListPerson.length === 0) {
+            room.Status = 1
+        }
+        room.ListPerson.push(customer._id)
+        await room.save()
         let result = await customer.save()
+
         res.json(result)
     } catch (err) {
         res.json({ message: err.message })
@@ -26,7 +34,7 @@ exports.createCustomer = async (req, res, next) => {
 
 exports.getAllCustomerOfUser = async (req, res) => {
     try {
-        const list = await Customer.find({UserId: req.jwt.userId})
+        const list = await Customer.find({ UserId: req.jwt.userId })
 
         res.json(list);
     } catch (err) {
@@ -45,19 +53,18 @@ exports.getCustomerById = async (req, res) => {
 exports.updateCustomer = async (req, res) => {
 
     const customer = await Customer.findById(req.params.customerId)
-    
+
     if (customer.Image && req.file) {
         fs.unlink(customer.Image, err => {
             console.log(err.message);
         });
     }
 
-    if(req.file)
-    { req.body.Image = req.file.path}
+    if (req.file) { req.body.Image = req.file.path }
 
     const update = req.body;
     try {
-        
+
         const updatedCustomer = await Customer.updateOne(
             { _id: req.params.customerId },
             { $set: update }
@@ -70,22 +77,21 @@ exports.updateCustomer = async (req, res) => {
 
 }
 exports.deleteCustomer = async (req, res) => {
-    const customer = await Customer.findById( req.params.customerId)
+    const customer = await Customer.findById(req.params.customerId)
     const room = await Room.findById(customer.RoomId)
-    const pos =  room.ListPerson.indexOf(req.params.customerId)
-    room.ListPerson.splice(pos, 1)  
-    if(room.ListPerson.length === 0 )
-    {
+    const pos = room.ListPerson.indexOf(req.params.customerId)
+    room.ListPerson.splice(pos, 1)
+    if (room.ListPerson.length === 0) {
         room.Status = 0
     }
     await room.save()
-    if(customer.Image){
+    if (customer.Image) {
         fs.unlink(customer.Image, err => {
             console.log(err);
-          });
+        });
     }
     try {
-       
+
         const removeCustomer = await Customer.remove({ _id: req.params.customerId })
         res.json(removeCustomer)
 

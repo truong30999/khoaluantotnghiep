@@ -15,8 +15,8 @@ exports.createBill = async (req, res) => {
         const bill = new Bill({
             RoomId: req.body.RoomId,
             DateCreate: new Date(),
-            StartDate: new Date(today.getFullYear(),today.getMonth()),
-            EndDate: new Date(today.getFullYear(),today.getMonth()),
+            StartDate: new Date(today.getFullYear(), today.getMonth()),
+            EndDate: new Date(today.getFullYear(), today.getMonth()),
             TotalBill: 0,
             OtherCosts: "",
             WaterFee: 0,
@@ -40,7 +40,7 @@ exports.createBill = async (req, res) => {
                 currUl = listUl[index]
             }
         }
-       
+
         //lấy hóa đơn điện nước của tháng trước
         var prevUl
         for (const index in listUl) {
@@ -48,7 +48,7 @@ exports.createBill = async (req, res) => {
                 prevUl = listUl[index]
             }
         }
-       
+
         //tính tiền dựa vào dịch vụ của phòng
         for (const sv in room.ListService) {
             let str = String(clearVNSign(room.ListService[sv]["ServiceName"])).toLowerCase()
@@ -92,8 +92,8 @@ exports.deleteBill = async (req, res) => {
     try {
         const bill = await Bill.findById(req.params.billId)
         const room = await Room.findById(bill.RoomId)
-        const pos =  room.ListBill.indexOf(req.params.billId)
-        room.ListBill.splice(pos,1)
+        const pos = room.ListBill.indexOf(req.params.billId)
+        room.ListBill.splice(pos, 1)
         room.save()
         const deleteBill = await Bill.remove({ _id: req.params.billId })
         res.json(deleteBill)
@@ -115,33 +115,37 @@ exports.getBillInMonth = async (req, res) => {
 
         const month = new Date(today.getFullYear(), today.getMonth())
         const ListBill = await Bill.find({ StartDate: month })
-        
+
         res.json(ListBill)
     } catch (error) {
         res.json({ message: error.message })
     }
 }
 exports.getBillInMonthOfUser = async (req, res) => {
-
     try {
-        if(req.query.Month)
-        {
-            const list = await House.find({UserId: req.query.UserId, _id: req.query.HouseId})
-            .populate({
-                path: 'Rooms',
-                populate: { path: 'ListBill', match: { StartDate: req.query.Month }
-              }})
-              return   res.json(list)
+        if (req.query.Month) {
+            const month = new Date(req.query.Month)
+            const list = await House.find({ UserId: req.query.UserId, _id: req.query.HouseId })
+                .populate({
+                    path: 'Rooms',
+                    populate: {
+                        path: 'ListBill', match: { StartDate: month }
+                    }
+                })
+            return res.json(list)
         }
-            const month = new Date(today.getFullYear(), today.getMonth())
-            const list = await House.find({ _id: req.query.HouseId , UserId: req.query.UserId})
+
+        const month = new Date(today.getFullYear(), today.getMonth())
+        const list = await House.find({ _id: req.query.HouseId, UserId: req.query.UserId })
             .populate({
                 path: 'Rooms',
-                populate: { path: 'ListBill', match: { StartDate: month }
-              }})
-            res.json(list)
-        
-      
+                populate: {
+                    path: 'ListBill', match: { StartDate: month }
+                }
+            })
+        res.json(list)
+
+
     } catch (error) {
         res.json({ message: error.message })
     }
