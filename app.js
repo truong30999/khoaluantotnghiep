@@ -6,9 +6,11 @@ const config = require("./config/config");
 const fs = require("fs");
 const path = require("path");
 const UserController = require("./controller/user.controller");
+const cron = require('node-cron');
 //Start App
 const User = require("./models/User.model");
 const app = express();
+
 //app.use(cors());
 app.use(bodyParser.json());
 app.use((req, res, next) => {
@@ -76,6 +78,11 @@ app.use("/verify", async (req, res) => {
 });
 app.get("/", (req, res) => {
   res.send("we are on home");
+});
+cron.schedule('* * * * *', () => {
+  console.log('running a task every minute');
+}, {
+  timezone: "Asia/Ho_Chi_Minh"
 });
 //connect to db
 

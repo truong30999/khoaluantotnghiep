@@ -17,7 +17,7 @@ exports.isPasswordAndUserMatch = (req, res, next) => {
                         userId: user._id,
                         email: user.Email,
                         permissionLevel: user.Type,
-                       
+
 
                     };
                     return next();
@@ -33,10 +33,10 @@ exports.login = (req, res) => {
         let salt = crypto.randomBytes(16).toString('base64');
         let hash = crypto.createHmac('sha512', salt).update(refreshId).digest("base64");
         req.body.refreshKey = salt;
-        let token = jwt.sign(req.body, config.jwtSecret,{ expiresIn : '1h'});
+        let token = jwt.sign(req.body, config.jwtSecret, { expiresIn: '1h' });
         let b = new Buffer(hash);
         let refresh_token = b.toString('base64');
-        res.json({userId: req.body.userId, Email: req.body.email ,accessToken: token, refreshToken: refresh_token });
+        res.json({ userId: req.body.userId, Email: req.body.email, accessToken: token, refreshToken: refresh_token });
     } catch (err) {
         res.status(500).send({ errors: err });
     }
@@ -67,16 +67,16 @@ exports.validJWTNeeded = (req, res, next) => {
         try {
             let authorization = req.headers.authorization.split(' ');
             if (authorization[0] !== 'Bearer') {
-                return res.status(401).send({ errors : "no header 1" });
+                return res.status(401).send({ errors: "no header 1" });
             } else {
                 req.jwt = jwt.verify(authorization[1], config.jwtSecret);
                 return next();
             }
         } catch (err) {
-            return res.status(403).send({ errors : "no header 2" });
+            return res.status(403).send({ errors: "no header 2" });
         }
     } else {
-        return res.status(401).send({ errors : "no header 3" });
+        return res.status(401).send({ errors: "no header 3" });
     }
 };
 
@@ -87,7 +87,7 @@ exports.minimumPermissionLevelRequired = (required_permission_level) => {
         if (user_permission_level & required_permission_level) {
             return next();
         } else {
-            return res.status(403).send({ errors: "cannot access"});
+            return res.status(403).send({ errors: "cannot access" });
         }
     };
 };

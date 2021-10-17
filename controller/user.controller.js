@@ -4,7 +4,7 @@ const crypto = require("crypto");
 const fs = require("fs");
 const nodemailer = require("nodemailer");
 const config = require("../config/config");
-
+const common = require("../utility/common");
 exports.createUser = async (req, res, next) => {
   let salt = crypto.randomBytes(16).toString("base64");
   let hash = crypto
@@ -57,37 +57,9 @@ exports.register = async (req, res) => {
         Type: req.body.Type,
         Status: 0,
       });
-
-      var transporter = nodemailer.createTransport({
-        service: "gmail",
-        auth: {
-          user: "truongnguyen30999test@gmail.com",
-          pass: "Khang250904",
-        },
-      });
-      var link =
-        config.backend_domain +
-        "/verify/?email=" +
-        user.Email +
-        "&activeId=" +
-        user.ActiveCode;
-      var mailOptions = {
-        from: "truongnguyen30999test@gmail.com",
-        to: user.Email,
-        subject: "Verify email register",
-        html:
-          "Hello,<br> Please Click on the link to verify your email.<br><a href=" +
-          link +
-          ">Click here to verify</a>",
-      };
-
-      transporter.sendMail(mailOptions, function (error, info) {
-        if (error) {
-          console.log(error);
-        } else {
-          console.log("Email sent: " + info.response);
-        }
-      });
+      var link = config.backend_domain + "/verify/?email=" + user.Email + "&activeId=" + user.ActiveCode;
+      let html = "Hello, welcome to Ứng dụng quản lý nhà trọ<br> Please Click on the link to verify your email.<br><a href=" + link + ">Click here to verify</a>"
+      common.sendEmail(user.Email, "Verify email register", html)
       const result = await user.save();
       res.json(result);
     }
