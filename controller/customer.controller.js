@@ -1,7 +1,9 @@
 const Customer = require('../models/Customer.model')
 const Room = require('../models/Room.model')
+const common = require('../utility/common')
 const fs = require('fs');
 exports.createCustomer = async (req, res, next) => {
+    let imgArr = common.convertArrImage(req.files)
     try {
         const customer = new Customer({
             Name: req.body.Name,
@@ -13,7 +15,7 @@ exports.createCustomer = async (req, res, next) => {
             Cmnd: req.body.Cmnd,
             DateCmnd: req.body.DateCmnd,
             PlaceCmnd: req.body.PlaceCmnd,
-            Image: req.file.path,
+            Image: imgArr,
             UserId: req.jwt.userId,
             RoomId: req.body.RoomID
         })
@@ -54,21 +56,21 @@ exports.getCustomerById = async (req, res) => {
 exports.updateCustomer = async (req, res) => {
 
     const customer = await Customer.findById(req.params.customerId)
-
-    if (customer.Image && req.file) {
-        fs.unlink(customer.Image, err => {
-            console.log(err.message);
-        });
+    let newCustomer = req.body
+    if (customer.Image && req.files) {
+        let imgArr = common.convertArrImage(req.files)
+        newCustomer.Image = imgArr
+        customer.Image.map((img) => {
+            fs.unlink(img, err => {
+                console.log(err.message);
+            });
+        })
     }
-
-    if (req.file) { req.body.Image = req.file.path }
-
-    const update = req.body;
     try {
 
         const updatedCustomer = await Customer.updateOne(
             { _id: req.params.customerId },
-            { $set: update }
+            { $set: newCustomer }
 
         );
         res.json(updatedCustomer);

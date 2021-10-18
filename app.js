@@ -46,6 +46,7 @@ const utilityBillRouter = require("./routes/utilitybills.routes.js");
 const serviceRouter = require("./routes/services.routes.js");
 const billRouter = require("./routes/bill.routes");
 const registerRouter = require("./routes/register.routes");
+const contractRouter = require("./routes/contract.routes");
 app.use("/uploads/images", express.static(path.join("uploads", "images")));
 app.use("/user", userRouter);
 app.use("/room", roomRouter);
@@ -56,6 +57,7 @@ app.use("/utilitybills", utilityBillRouter);
 app.use("/service", serviceRouter);
 app.use("/bill", billRouter);
 app.use("/register", registerRouter);
+app.use("/contract", contractRouter)
 //routes
 
 app.use("/verify", async (req, res) => {
@@ -76,14 +78,14 @@ app.use("/verify", async (req, res) => {
     res.json({ message: error.message });
   }
 });
-app.get("/", (req, res) => {
-  res.send("we are on home");
-});
-cron.schedule('* * * * *', () => {
-  console.log('running a task every minute');
-}, {
-  timezone: "Asia/Ho_Chi_Minh"
-});
+// app.get("/", (req, res) => {
+//   res.send("we are on home");
+// });
+// cron.schedule('* * * * *', () => {
+//   console.log('running a task every minute');
+// }, {
+//   timezone: "Asia/Ho_Chi_Minh"
+// });
 //connect to db
 
 mongoose.connect(

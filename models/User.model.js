@@ -1,23 +1,23 @@
 const mongoose = require('mongoose');
- 
+
 const userSchema = mongoose.Schema({
 
     Name: {
         type: String
     },
-    Age:{
+    Age: {
         type: Number
     },
     Email: {
         type: String,
         require: true
     },
-    Phone:{
+    Phone: {
         type: String
     },
-    Image : { 
+    Image: {
         type: String,
-        
+
     },
     PassWord: {
         type: String,
@@ -27,17 +27,23 @@ const userSchema = mongoose.Schema({
         type: Number,
         require: true
     },
-    House:[{
+    PermanentAddress: {
+        type: String
+    },
+    Cmnd: { type: String },
+    DateCmnd: { type: Date },
+    PlaceCmnd: { type: String },
+    House: [{
         type: mongoose.Schema.Types.ObjectId,
         ref: "House"
     }],
-    ActiveCode:{
-        type:Number
+    ActiveCode: {
+        type: Number
     },
-    Status:{
+    Status: {
         type: Number,
         require: true
     }
 });
 
-module.exports= mongoose.model("Users", userSchema);
+module.exports = mongoose.model("Users", userSchema);

@@ -141,7 +141,7 @@ exports.removePersonToRoom = async (req, res) => {
             room.Status = 0
         }
         const customer = await Customer.findById(req.params.customerId)
-        customer.RoomId = ""
+        customer.RoomId = null
         await customer.save()
         const result = await room.save()
         res.json(result)
