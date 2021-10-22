@@ -5,6 +5,8 @@ const fs = require("fs");
 const nodemailer = require("nodemailer");
 const config = require("../config/config");
 const common = require("../utility/common");
+
+
 exports.createUser = async (req, res, next) => {
   let salt = crypto.randomBytes(16).toString("base64");
   let hash = crypto

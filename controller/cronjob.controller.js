@@ -1,8 +1,10 @@
 const Customer = require("../models/Customer.model")
 const common = require("../utility/common")
-const currentDate = new Date()
+const UtilityBill = require("../models/Utilitybills.model")
+
 
 exports.remindUpdateElectricAndWater = async () => {
+    const currentDate = new Date()
     try {
         const list = await Customer.find()
         const title = "Nhà trọ thông báo"
@@ -16,6 +18,8 @@ exports.remindUpdateElectricAndWater = async () => {
     }
 }
 exports.test = async () => {
-    const customerEventEmitter = Customer.watch()
-    personEventEmitter.on('change', change => console.log(JSON.stringify(change)))
+    let listUl = await UtilityBill.find({
+        RoomId: "61701280e3df574a2855dfce"
+    }).sort({ Time: 'desc' }).limit(3)
+    console.log(listUl)
 }

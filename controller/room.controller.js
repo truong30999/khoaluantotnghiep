@@ -6,10 +6,12 @@ const config = require('../config/config')
 const common = require('../utility/common')
 const UtilityBill = require('../models/Utilitybills.model')
 const fs = require('fs');
-const today = new Date()
-const timeUtility = new Date(today.getFullYear(), today.getMonth() - 1)
+
+
 
 exports.createRoom = async (req, res) => {
+    const today = new Date()
+    const timeUtility = new Date(today.getFullYear(), today.getMonth())
     let imgArr = common.convertArrImage(req.files)
     const room = new Room({
         RoomNumber: req.body.RoomNumber,

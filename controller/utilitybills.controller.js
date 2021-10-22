@@ -1,7 +1,7 @@
 const UtilityBill = require('../models/Utilitybills.model')
 const Room = require('../models/Room.model')
 const House = require('../models/House.model')
-const today = new Date()
+
 exports.createUtilityBills = async (req, res) => {
     try {
         const time = new Date(req.body.Time)
@@ -38,27 +38,6 @@ exports.getAllUtilityByRoom = async (req, res) => {
             match: { Time: abc }
         })
         res.json(listRoom)
-
-
-
-        // const list = await House.find({ UserId: req.jwt.userId, _id: req.query.HouseId })
-        //     .populate({
-        //         path: 'Rooms',
-        //         populate: {
-        //             path: 'ListUtilityBill', match: { Time: abc }
-        //         }
-        //     })
-        // res.json(list)
-
-
-        // const month =  new Date(today.getFullYear(), today.getMonth())
-        // const list = await House.find({ _id: req.query.HouseId , UserId: req.jwt.userId})
-        // .populate({
-        //     path: 'Rooms',
-        //     populate: { path: 'ListUtilityBill', match: { Time: month }
-        //   }})
-        // res.json(list)
-
 
     } catch (error) {
         console.log(error.message)

@@ -93,8 +93,13 @@ app.get("/", (req, res) => {
 // });
 
 let remindjob = new CronJob('0 8 27 * *', () => {
+
   CronJobs.remindUpdateElectricAndWater()
 }, null, true, 'Asia/Ho_Chi_Minh');
+// let testjob = new CronJob('*/5 * * * * *', () => {
+//   CronJobs.test()
+// }, null, true, 'Asia/Ho_Chi_Minh');
+
 // setTimeout(function () {
 //   job.setTime(new CronTime('*/5 * * * * *'))
 //   console.log("Start 5")
