@@ -50,7 +50,7 @@ exports.updateRoom = async (req, res) => {
     //delete old image if add new image
     const room = await Room.findById(req.params.roomId)
     let newRoom = req.body
-    if (room.Image && req.files) {
+    if (room.Image.length && req.files.length) {
         let imgArr = common.convertArrImage(req.files)
         newRoom.Image = imgArr
         room.Image.map((img) => {
@@ -59,8 +59,6 @@ exports.updateRoom = async (req, res) => {
             });
         })
     }
-
-
     try {
 
         const updateRoom = await Room.updateOne(
@@ -108,6 +106,11 @@ exports.deleteRoom = async (req, res) => {
         const pos = house.Rooms.indexOf(req.params.roomId)
         house.Rooms.splice(pos, 1)
         house.save()
+        if (room.Image.length) {
+            fs.unlink(room.Image, err => {
+                console.log(err);
+            });
+        }
         const removeRoom = await Room.remove({ _id: req.params.roomId })
 
         res.json(removeRoom)

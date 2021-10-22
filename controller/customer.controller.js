@@ -57,7 +57,7 @@ exports.updateCustomer = async (req, res) => {
 
     const customer = await Customer.findById(req.params.customerId)
     let newCustomer = req.body
-    if (customer.Image && req.files) {
+    if (customer.Image.length && req.files.length) {
         let imgArr = common.convertArrImage(req.files)
         newCustomer.Image = imgArr
         customer.Image.map((img) => {
@@ -88,7 +88,7 @@ exports.deleteCustomer = async (req, res) => {
         room.Status = 0
     }
     await room.save()
-    if (customer.Image) {
+    if (customer.Image.length) {
         fs.unlink(customer.Image, err => {
             console.log(err);
         });

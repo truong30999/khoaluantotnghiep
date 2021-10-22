@@ -124,7 +124,7 @@ exports.updateUser = async (req, res) => {
 };
 exports.deleteUser = async (req, res) => {
   const user = await User.findById(req.params.userId);
-  if (user.Image) {
+  if (user.Image === "") {
     fs.unlink(user.Image, (err) => {
       console.log(err);
     });
