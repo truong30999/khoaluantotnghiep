@@ -21,6 +21,8 @@ exports.createBill = async (req, res) => {
             OtherCosts: "",
             WaterFee: 0,
             ElectricFee: 0,
+            AmountOfElectric: 0,
+            AmountOfWater: 0,
             Status: 0
         })
         bill.EndDate.setMonth(today.getMonth() + 1)
@@ -48,7 +50,8 @@ exports.createBill = async (req, res) => {
                 prevUl = listUl[index]
             }
         }
-
+        bill.AmountOfElectric = (currUl["ElectricNumber"] - prevUl["ElectricNumber"])
+        bill.AmountOfWater = (currUl["WaterNumber"] - prevUl["WaterNumber"])
         //tính tiền dựa vào dịch vụ của phòng
         for (const sv in room.ListService) {
             let str = String(clearVNSign(room.ListService[sv]["ServiceName"])).toLowerCase()

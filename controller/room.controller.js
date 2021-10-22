@@ -4,8 +4,10 @@ const Service = require('../models/Services.model')
 const Customer = require('../models/Customer.model')
 const config = require('../config/config')
 const common = require('../utility/common')
-const RoomModel = require('../models/Room.model')
+const UtilityBill = require('../models/Utilitybills.model')
 const fs = require('fs');
+const today = new Date()
+const timeUtility = new Date(today.getFullYear(), today.getMonth() - 1)
 
 exports.createRoom = async (req, res) => {
     let imgArr = common.convertArrImage(req.files)
@@ -21,7 +23,14 @@ exports.createRoom = async (req, res) => {
     })
     try {
         const service = await Service.find({ UserId: req.jwt.userId }, { _id: 1 })
-
+        const newUtility = new UtilityBill({
+            Time: timeUtility,
+            ElectricNumber: 0,
+            WaterNumber: 0,
+            RoomId: room._id
+        })
+        await newUtility.save()
+        room.ListUtilityBill.push(newUtility._id)
         for (const id in service) {
             room.ListService.push(service[id]["_id"])
 

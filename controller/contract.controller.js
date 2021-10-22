@@ -5,6 +5,9 @@ const House = require('../models/House.model')
 exports.createContract = async (req, res) => {
     try {
         const contract = new Contract(req.body)
+        const room = await Room.findById(req.body.Room)
+        contract.Rent = room.Price
+        contract.Terms = ""
         const result = await contract.save()
         res.json(result)
     } catch (error) {
@@ -38,7 +41,6 @@ exports.deleteContract = async (req, res) => {
 //lấy contract theo nhà, phòng, người dùng
 exports.getContractOfUser = async (req, res) => {
     try {
-
         if (req.query.house) {
             const result = await Contract.find({ Lessor: req.jwt.userId, House: req.query.house })
                 .populate("Lessor", "Name")

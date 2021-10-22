@@ -6,10 +6,12 @@ const config = require("./config/config");
 const fs = require("fs");
 const path = require("path");
 const UserController = require("./controller/user.controller");
-const cron = require('node-cron');
+const CronJob = require('cron').CronJob;
+const CronTime = require('cron').CronTime;
 //Start App
 const User = require("./models/User.model");
 const app = express();
+const CronJobs = require("./controller/cronjob.controller")
 
 //app.use(cors());
 app.use(bodyParser.json());
@@ -78,16 +80,28 @@ app.use("/verify", async (req, res) => {
     res.json({ message: error.message });
   }
 });
-// app.get("/", (req, res) => {
-//   res.send("we are on home");
-// });
-// cron.schedule('* * * * *', () => {
-//   console.log('running a task every minute');
+app.get("/", (req, res) => {
+  res.send("we are on home");
+});
+//===========CRON JOBS=============
+
+// send a reminder email on the 27th of every month
+// cron('0 0 8 27 * ?', () => {
+//   CronJobs.remindUpdateElectricAndWater()
 // }, {
 //   timezone: "Asia/Ho_Chi_Minh"
 // });
-//connect to db
 
+let remindjob = new CronJob('0 8 27 * *', () => {
+  CronJobs.remindUpdateElectricAndWater()
+}, null, true, 'Asia/Ho_Chi_Minh');
+// setTimeout(function () {
+//   job.setTime(new CronTime('*/5 * * * * *'))
+//   console.log("Start 5")
+//   job.start()
+// }, 10000);
+
+//connect to db
 mongoose.connect(
   "mongodb+srv://truong:Khang250904@cluster0.xlqnr.mongodb.net/test1?retryWrites=true&w=majority",
   { useNewUrlParser: true, useUnifiedTopology: true },
