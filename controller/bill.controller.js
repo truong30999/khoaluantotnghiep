@@ -167,7 +167,7 @@ exports.getBillInMonthOfUser = async (req, res) => {
         const currentMonth = new Date(today.getFullYear(), today.getMonth())
         if (req.query.Month) {
             const month = new Date(req.query.Month)
-            const reqMonth = new Date(month.getFullYear(), month.getMonth())
+            const reqMonth = new Date(month.getFullYear(), month.getMonth() + 1)
             const list = await House.find({ UserId: req.query.UserId, _id: req.query.HouseId })
                 .populate({
                     path: 'Rooms',
