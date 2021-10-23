@@ -162,30 +162,29 @@ exports.getBillById = async (req, res) => {
 
 }
 exports.getBillInMonthOfUser = async (req, res) => {
-    const today = new Date()
     try {
+        const today = new Date()
+        const currentMonth = new Date(today.getFullYear(), today.getMonth())
         if (req.query.Month) {
             const month = new Date(req.query.Month)
+            const reqMonth = new Date(month.getFullYear(), month.getMonth())
             const list = await House.find({ UserId: req.query.UserId, _id: req.query.HouseId })
                 .populate({
                     path: 'Rooms',
                     populate: {
-                        path: 'ListBill', match: { StartDate: month }
+                        path: 'ListBill', match: { EndDate: reqMonth }
                     }
                 })
             return res.json(list)
         }
-
-        const month = new Date(today.getFullYear(), today.getMonth())
         const list = await House.find({ _id: req.query.HouseId, UserId: req.query.UserId })
             .populate({
                 path: 'Rooms',
                 populate: {
-                    path: 'ListBill', match: { StartDate: month }
+                    path: 'ListBill', match: { EndDate: currentMonth }
                 }
             })
         res.json(list)
-
 
     } catch (error) {
         res.json({ message: error.message })

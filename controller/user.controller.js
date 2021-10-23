@@ -104,6 +104,7 @@ exports.updateUser = async (req, res) => {
   //     req.body.password = salt + "$" + hash;
   // }
   const user = await User.findById(req.jwt.userId);
+  console.log(req.file)
   if (user.Image && req.file) {
     fs.unlink(user.Image, (err) => {
       console.log(err.message);
