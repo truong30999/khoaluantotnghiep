@@ -95,7 +95,7 @@ exports.getBillInMonthOfUser = async (req, res) => {
         const currentMonth = new Date(date.getFullYear(), date.getMonth() + 1)
         const listRoom = await Room.find({ HouseId: req.body.HouseId }, 'RoomNumber Status').populate({
             path: 'ListBill',
-            match: { Time: currentMonth }
+            match: { EndDate: currentMonth }
         })
         res.json(listRoom)
 
