@@ -107,7 +107,7 @@ exports.updateUser = async (req, res) => {
   console.log(req.file)
   if (user.Image && req.file) {
     fs.unlink(user.Image, (err) => {
-      console.log(err.message);
+      console.log(err);
     });
   }
 

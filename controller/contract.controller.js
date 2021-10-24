@@ -1,17 +1,20 @@
 const Contract = require('../models/Contract.model')
 const Room = require('../models/Room.model')
-const House = require('../models/House.model')
+const Customer = require("../models/Customer.model")
 
 exports.createContract = async (req, res) => {
     try {
         const contract = new Contract(req.body)
-        const room = await Room.findById(req.body.Room)
+        const customer = await Customer.findById(req.body.Renter)
+        const room = await Room.findById(customer.RoomId)
+        contract.House = room.HouseId
+        contract.Room = customer.RoomId
         contract.Rent = room.Price
         contract.Terms = ""
         const result = await contract.save()
         res.json(result)
     } catch (error) {
-        res.json({ message: error.message })
+        res.json({ error })
     }
 }
 exports.detailContract = async (req, res) => {
@@ -19,7 +22,7 @@ exports.detailContract = async (req, res) => {
         const contract = await Contract.findById(req.params.contractId)
         res.json(contract)
     } catch (error) {
-        res.json({ message: error.message })
+        res.json({ error })
     }
 }
 exports.editStatus = async (req, res) => {
@@ -27,7 +30,7 @@ exports.editStatus = async (req, res) => {
         const contract = await Contract.findOneAndUpdate({ _id: req.params.contractId }, { Status: req.body.Status })
         res.json(contract)
     } catch (error) {
-        res.json({ message: error.message })
+        res.json({ error })
     }
 }
 exports.deleteContract = async (req, res) => {
@@ -35,7 +38,7 @@ exports.deleteContract = async (req, res) => {
         const result = await Contract.deleteOne({ _id: req.params.contractId })
         res.json(result)
     } catch (error) {
-        res.json({ message: error.message })
+        res.json({ error })
     }
 }
 //lấy contract theo nhà, phòng, người dùng
@@ -63,6 +66,6 @@ exports.getContractOfUser = async (req, res) => {
             .populate("Room", "RoomNumber")
         res.json(result)
     } catch (error) {
-        res.json({ message: error.message })
+        res.json({ error })
     }
 }

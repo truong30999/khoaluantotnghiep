@@ -8,7 +8,7 @@ exports.createUtilityBills = async (req, res) => {
         const abc = new Date(time.getFullYear(), time.getMonth() + 1)
         const existUtil = await UtilityBill.find({ RoomId: req.body.RoomId, Time: abc })
         if (existUtil.length !== 0) {
-            res.json({ error: "đã tồn tại" })
+            res.json({ error: "Chỉ số đã tồn tại" })
             return
         }
         const ult = new UtilityBill({
@@ -33,7 +33,7 @@ exports.getAllUtilityByRoom = async (req, res) => {
     try {
         const time = new Date(req.body.Month)
         const abc = new Date(time.getFullYear(), time.getMonth() + 1)
-        const listRoom = await Room.find({ HouseId: req.body.HouseId }, 'RoomNumber').populate({
+        const listRoom = await Room.find({ HouseId: req.body.HouseId }, 'RoomNumber Status').populate({
             path: 'ListUtilityBill',
             match: { Time: abc }
         })

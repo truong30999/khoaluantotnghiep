@@ -18,8 +18,12 @@ exports.remindUpdateElectricAndWater = async () => {
     }
 }
 exports.test = async () => {
-    let listUl = await UtilityBill.find({
-        RoomId: "61701280e3df574a2855dfce"
-    }).sort({ Time: 'desc' }).limit(3)
+
+    const date = new Date("2021-9-30")
+    const currentMonth = new Date(date.getFullYear(), date.getMonth())
+    const listUl = await UtilityBill.find({
+        RoomId: "61701280e3df574a2855dfce",
+        Time: { $lte: currentMonth }
+    }).sort({ Time: 'desc' }).limit(2)
     console.log(listUl)
 }
