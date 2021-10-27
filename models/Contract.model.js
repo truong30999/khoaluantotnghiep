@@ -20,6 +20,7 @@ const contract = mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: "Room"
     },
+    AddressHouse: { type: String },
     // thời gian thuê
     RentalPeriod: { type: String },
     // ngày chuyển đến

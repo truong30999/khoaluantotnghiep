@@ -1,15 +1,18 @@
 const Contract = require('../models/Contract.model')
 const Room = require('../models/Room.model')
 const Customer = require("../models/Customer.model")
+const House = require("../models/House.model")
 
 exports.createContract = async (req, res) => {
     try {
         const contract = new Contract(req.body)
         const customer = await Customer.findById(req.body.Renter)
         const room = await Room.findById(customer.RoomId)
+        const house = await House.findById(room.HouseId)
         contract.House = room.HouseId
         contract.Room = customer.RoomId
         contract.Rent = room.Price
+        contract.AddressHouse = house.Address
         contract.Terms = ""
         const result = await contract.save()
         res.json(result)

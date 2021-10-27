@@ -8,7 +8,8 @@ const customerSchema = mongoose.Schema({
     },
     Age: { type: Number },
     DateOfBirth: { type: Date },
-    Phone: { type: String },
+    Phone: { type: String, require: true },
+    Password: { type: String },
     Email: { type: String },
     PermanentAddress: {
         type: String,

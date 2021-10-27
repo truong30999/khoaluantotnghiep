@@ -21,6 +21,7 @@ exports.createRoom = async (req, res) => {
         Details: req.body.Details,
         Image: imgArr,
         HouseId: req.body.HouseId,
+        ListPerson: [],
         Status: 0
     })
     try {
@@ -108,10 +109,12 @@ exports.deleteRoom = async (req, res) => {
         const pos = house.Rooms.indexOf(req.params.roomId)
         house.Rooms.splice(pos, 1)
         house.save()
-        if (room.Image.length) {
-            fs.unlink(room.Image, err => {
-                console.log(err);
-            });
+        if (room.Image.length > 0) {
+            room.Image.forEach((image) => {
+                fs.unlink(image, err => {
+                    console.log(err);
+                });
+            })
         }
         const removeRoom = await Room.remove({ _id: req.params.roomId })
 

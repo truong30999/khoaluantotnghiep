@@ -1,15 +1,30 @@
 const Customer = require('../models/Customer.model')
 const Room = require('../models/Room.model')
 const common = require('../utility/common')
+const jwt = require('jsonwebtoken')
 const fs = require('fs');
+const crypto = require("crypto");
+const config = require("../config/config")
+
 exports.createCustomer = async (req, res, next) => {
+    const customer = await Customer.findOne({ Phone: req.body.Phone })
+    if (customer) {
+        return res.json({ error: "Phone already used!" });
+    }
     let imgArr = common.convertArrImage(req.files)
     try {
+        let salt = crypto.randomBytes(16).toString("base64");
+        let hash = crypto
+            .createHmac("sha512", salt)
+            .update("123456")
+            .digest("base64");
+        const password = salt + "$" + hash;
         const customer = new Customer({
             Name: req.body.Name,
             Age: req.body.Age,
             DateOfBirth: req.body.DateOfBirth,
             Phone: req.body.Phone,
+            Password: password,
             Email: req.body.Email,
             PermanentAddress: req.body.PermanentAddress,
             Cmnd: req.body.Cmnd,
@@ -19,7 +34,7 @@ exports.createCustomer = async (req, res, next) => {
             UserId: req.jwt.userId,
             RoomId: req.body.RoomID
         })
-        const room = await Room.findById(req.body.RoomId)
+        const room = await Room.findById(req.body.RoomID)
         if (room.ListPerson.length === 0) {
             room.Status = 1
         }
@@ -88,13 +103,14 @@ exports.deleteCustomer = async (req, res) => {
         room.Status = 0
     }
     await room.save()
-    if (customer.Image.length) {
-        fs.unlink(customer.Image, err => {
-            console.log(err);
+    if (customer.Image.length > 0) {
+        customer.Image.forEach(image => {
+            fs.unlink(image, err => {
+                console.log(err);
+            });
         });
     }
     try {
-
         const removeCustomer = await Customer.remove({ _id: req.params.customerId })
         res.json(removeCustomer)
 
@@ -102,5 +118,38 @@ exports.deleteCustomer = async (req, res) => {
         res.json({ message: err })
     }
 }
+exports.isPasswordAndPhoneMatch = (req, res, next) => {
+    // if (req.body.Phone.length !== 10) {
+    //     return res.json({ error: "Vui lòng nhập đúng số điện thoại!" })
+    // }
+
+    Customer.findOne({ Phone: req.body.Phone })
+        .then((customer) => {
+            if (!customer) {
+                res.status(404).send({ errors: "Phone not found" });
+            } else {
+                let passwordFields = customer.Password.split('$');
+                let salt = passwordFields[0];
+                let hash = crypto.createHmac('sha512', salt).update(String(req.body.Password)).digest("base64");
+                if (hash === passwordFields[1]) {
+                    req.body = {
+                        customerId: customer._id,
+                    };
+                    return next();
+                } else {
+
+                    return res.status(400).send({ error: 'Invalid Phone or Password' });
+                }
+            }
+        });
+};
+exports.login = (req, res) => {
+    try {
+        let token = jwt.sign(req.body, config.jwtSecret, { expiresIn: '15m' });
+        res.json({ customerId: req.body.customerId, accessToken: token });
+    } catch (err) {
+        res.status(500).send(err);
+    }
+};
 
 
