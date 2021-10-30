@@ -81,11 +81,17 @@ exports.deleteBill = async (req, res) => {
 }
 exports.getBillById = async (req, res) => {
     try {
-        const bill = await Bill.findById(req.params.billId)
+        const bill = await Bill.findById(req.params.billId).populate({
+            path: 'RoomId',
+            select: 'RoomNumber'
+        })
         res.json(bill)
     } catch (err) {
         res.json({ message: err.message })
     }
+
+}
+exports.getBillOfCustomer = async (req, res) => {
 
 }
 exports.getBillInMonthOfUser = async (req, res) => {

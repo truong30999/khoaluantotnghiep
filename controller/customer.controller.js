@@ -52,7 +52,11 @@ exports.createCustomer = async (req, res, next) => {
 
 exports.getAllCustomerOfUser = async (req, res) => {
     try {
-        const list = await Customer.find({ UserId: req.jwt.userId })
+        const list = await Customer.find({ UserId: req.jwt.userId }).populate({
+            path: 'RoomId',
+            select: 'RoomNumber',
+            populate: { path: 'HouseId', select: "Name" }
+        })
 
         res.json(list);
     } catch (err) {
@@ -62,7 +66,11 @@ exports.getAllCustomerOfUser = async (req, res) => {
 }
 exports.getCustomerById = async (req, res) => {
     try {
-        const customer = await Customer.findById(req.params.customerId);
+        const customer = await Customer.findById(req.params.customerId).populate({
+            path: 'RoomId',
+            select: 'RoomNumber',
+            populate: { path: 'HouseId', select: "Name" }
+        })
         res.json(customer);
     } catch (err) {
         res.json({ message: err.message });

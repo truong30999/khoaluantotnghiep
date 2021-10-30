@@ -23,6 +23,10 @@ exports.createContract = async (req, res) => {
 exports.detailContract = async (req, res) => {
     try {
         const contract = await Contract.findById(req.params.contractId)
+            .populate("Lessor", "Name")
+            .populate("Renter", "Name")
+            .populate("House", "Name")
+            .populate("Room", "RoomNumber")
         res.json(contract)
     } catch (error) {
         res.json({ error })

@@ -53,14 +53,17 @@ exports.updateRoom = async (req, res) => {
     //delete old image if add new image
     const room = await Room.findById(req.params.roomId)
     let newRoom = req.body
-    if (room.Image.length && req.files.length) {
+
+    if (req.files && req.files.length) {
         let imgArr = common.convertArrImage(req.files)
         newRoom.Image = imgArr
-        room.Image.map((img) => {
-            fs.unlink(img, err => {
-                console.log(err.message);
-            });
-        })
+        if (room.Image && room.Image.length) {
+            room.Image.map((img) => {
+                fs.unlink(img, err => {
+                    console.log(err.message);
+                });
+            })
+        }
     }
     try {
 
