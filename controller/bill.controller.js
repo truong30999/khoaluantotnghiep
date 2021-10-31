@@ -9,8 +9,6 @@ exports.createBill = async (req, res) => {
     return res.json(result)
 }
 exports.recalculateBill = async (req, res) => {
-    const today = new Date()
-    const currentMonth = new Date(today.getFullYear(), today.getMonth())
     try {
         const bill = await Bill.findById(req.params.billId)
         const date = new Date(bill.EndDate)
@@ -20,10 +18,9 @@ exports.recalculateBill = async (req, res) => {
             RoomId: bill.RoomId,
             Time: { $lte: date }
         }).sort({ Time: 'desc' }).limit(2)
-
         const room = await Room.findOne({ _id: bill.RoomId }).populate("ListService")
 
-        if (isSameTime(listUl[0].Time, currentMonth)) {
+        if (isSameTime(listUl[0].Time, bill.EndDate)) {
             //lấy hóa đơn điện nước của tháng hiện tại
             let currUl = listUl[0]
             //lấy hóa đơn điện nước của tháng trước
@@ -49,7 +46,7 @@ exports.recalculateBill = async (req, res) => {
             const result = await bill.save()
             return res.json(result);
         }
-        res.json({ error: "chưa cập nhật điện nước" })
+        res.json({ error: "Không có chỉ số điện nước" })
     } catch (error) {
         res.json({ message: error.message })
     }
