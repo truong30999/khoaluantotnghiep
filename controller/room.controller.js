@@ -136,7 +136,7 @@ exports.addPersonToRoom = async (req, res) => {
         const customer = await Customer.findById(req.params.customerId)
         if (customer.RoomId) {
             const oldRoom = await Room.findById(customer.RoomId)
-            const selectIndex = oldRoom.indexOf(req.params.customerId)
+            const selectIndex = oldRoom.ListPerson.indexOf(req.params.customerId)
             oldRoom.ListPerson.splice(selectIndex, 1)
             if (!oldRoom.ListPerson.length) {
                 oldRoom.Status = 0
