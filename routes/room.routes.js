@@ -15,7 +15,7 @@ router.get('/house/:houseId', Room.getRoomByHouse)
 
 router.get('/person/:roomId', Room.getPersonInRoom)
 
-router.get('/service/:roomId', Room.getServideOfRoom)
+router.get('/service/:roomId', Room.getServiceOfRoom)
 
 router.post('/', auth.validJWTNeeded, fileUpload.array('Image'), Room.createRoom)
 

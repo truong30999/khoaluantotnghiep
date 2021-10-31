@@ -32,9 +32,9 @@ exports.createCustomer = async (req, res, next) => {
             PlaceCmnd: req.body.PlaceCmnd,
             Image: imgArr,
             UserId: req.jwt.userId,
-            RoomId: req.body.RoomID
+            RoomId: req.body.RoomId
         })
-        const room = await Room.findById(req.body.RoomID)
+        const room = await Room.findById(req.body.RoomId)
         if (room.ListPerson.length === 0) {
             room.Status = 1
         }
@@ -80,14 +80,16 @@ exports.updateCustomer = async (req, res) => {
 
     const customer = await Customer.findById(req.params.customerId)
     let newCustomer = req.body
-    if (customer.Image.length && req.files.length) {
+    if (req.files && req.files.length) {
         let imgArr = common.convertArrImage(req.files)
         newCustomer.Image = imgArr
-        customer.Image.map((img) => {
-            fs.unlink(img, err => {
-                console.log(err.message);
-            });
-        })
+        if (customer.Image && customer.Image.length) {
+            customer.Image.map((img) => {
+                fs.unlink(img, err => {
+                    console.log(err.message);
+                });
+            })
+        }
     }
     try {
 

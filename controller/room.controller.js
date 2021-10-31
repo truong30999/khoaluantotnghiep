@@ -6,6 +6,7 @@ const config = require('../config/config')
 const common = require('../utility/common')
 const UtilityBill = require('../models/Utilitybills.model')
 const fs = require('fs');
+const { resolveSoa } = require('dns')
 
 
 
@@ -131,21 +132,24 @@ exports.deleteRoom = async (req, res) => {
 exports.addPersonToRoom = async (req, res) => {
     try {
 
-        const room = await Room.findById(req.params.roomId)
+        const newRoom = await Room.findById(req.params.roomId)
         const customer = await Customer.findById(req.params.customerId)
-        if (customer.RoomId === "" || !customer.RoomId) {
-            customer.RoomId = room._id
+        if (customer.RoomId) {
+            const oldRoom = await Room.findById(customer.RoomId)
+            const selectIndex = oldRoom.indexOf(req.params.customerId)
+            oldRoom.ListPerson.splice(selectIndex, 1)
+            if (!oldRoom.ListPerson.length) {
+                oldRoom.Status = 0
+            }
+            await oldRoom.save()
         }
-        else {
-            return res.json({ err: "Người dùng đã được thêm vào phòng" })
+        customer.RoomId = req.params.roomId
+        newRoom.ListPerson.push(req.params.customerId)
+        if (!newRoom.Status) {
+            newRoom.Status = 1
         }
-        customer.save()
-        if (room.ListPerson.length === 0) {
-            room.Status = 1
-        }
-        room.ListPerson.push(req.params.customerId)
-
-        const result = await room.save()
+        await newRoom.save()
+        const result = await customer.save()
         res.json(result)
     } catch (error) {
         res.json({ message: error.message })
@@ -206,7 +210,7 @@ exports.getPersonInRoom = async (req, res) => {
     }
 }
 //lay tat ca dich vu cua phong
-exports.getServideOfRoom = async (req, res) => {
+exports.getServiceOfRoom = async (req, res) => {
     try {
         const room = await Room.findOne({ _id: req.params.roomId }).populate("ListService")
         const service = room["ListService"]
