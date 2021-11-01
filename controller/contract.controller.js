@@ -32,7 +32,15 @@ exports.detailContract = async (req, res) => {
         res.json({ error })
     }
 }
-exports.editStatus = async (req, res) => {
+exports.editContract = async (req, res) => {
+    try {
+        const contract = await Contract.findOneAndUpdate({ _id: req.params.contractId }, { $set: req.body })
+        res.json(contract)
+    } catch (error) {
+        res.json({ error })
+    }
+}
+exports.updateStatus = async (req, res) => {
     try {
         const contract = await Contract.findOneAndUpdate({ _id: req.params.contractId }, { Status: req.body.Status })
         res.json(contract)
