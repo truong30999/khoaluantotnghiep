@@ -1,7 +1,7 @@
 const Customer = require("../models/Customer.model")
 const common = require("../utility/common")
 const UtilityBill = require("../models/Utilitybills.model")
-
+const config = require("../config/config")
 
 exports.remindUpdateElectricAndWater = async () => {
     const currentDate = new Date()
@@ -19,11 +19,4 @@ exports.remindUpdateElectricAndWater = async () => {
 }
 exports.test = async () => {
 
-    const date = new Date("2021-9-30")
-    const currentMonth = new Date(date.getFullYear(), date.getMonth())
-    const listUl = await UtilityBill.find({
-        RoomId: "61701280e3df574a2855dfce",
-        Time: { $lte: currentMonth }
-    }).sort({ Time: 'desc' }).limit(2)
-    console.log(listUl)
 }

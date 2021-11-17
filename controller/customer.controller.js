@@ -4,8 +4,12 @@ const common = require('../utility/common')
 const jwt = require('jsonwebtoken')
 const fs = require('fs');
 const crypto = require("crypto");
+const Nexmo = require('nexmo');
 const config = require("../config/config")
-
+const nexmo = new Nexmo({
+    apiKey: config.NEXMO_API_KEY,
+    apiSecret: config.NEXMO_API_SECRET,
+}, { debug: true });
 exports.createCustomer = async (req, res, next) => {
     const customer = await Customer.findOne({ Phone: req.body.Phone })
     if (customer) {
@@ -41,6 +45,7 @@ exports.createCustomer = async (req, res, next) => {
         room.ListPerson.push(customer._id)
         await room.save()
         let result = await customer.save()
+
 
         res.json(result)
 
@@ -136,7 +141,7 @@ exports.isPasswordAndPhoneMatch = (req, res, next) => {
     Customer.findOne({ Phone: req.body.Phone })
         .then((customer) => {
             if (!customer) {
-                res.status(404).send({ errors: "Phone not found" });
+                res.json({ error: "Phone not found" });
             } else {
                 let passwordFields = customer.Password.split('$');
                 let salt = passwordFields[0];
@@ -147,8 +152,7 @@ exports.isPasswordAndPhoneMatch = (req, res, next) => {
                     };
                     return next();
                 } else {
-
-                    return res.status(400).send({ error: 'Invalid Phone or Password' });
+                    return res.json({ error: 'Invalid Password' });
                 }
             }
         });
