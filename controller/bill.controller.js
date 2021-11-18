@@ -88,9 +88,6 @@ exports.getBillById = async (req, res) => {
     }
 
 }
-exports.getBillOfCustomer = async (req, res) => {
-
-}
 exports.getBillInMonthOfUser = async (req, res) => {
     // có month và houseId
     try {

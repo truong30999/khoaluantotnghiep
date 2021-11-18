@@ -7,8 +7,6 @@ const auth = require("../controller/auth.controller")
 
 router.get('/', auth.validJWTNeeded, customer.getAllCustomerOfUser)
 router.post('/', auth.validJWTNeeded, fileUpload.array('Image'), customer.createCustomer)
-router.post('/login', customer.isPasswordAndPhoneMatch, customer.login)
-
 router.get('/:customerId', customer.getCustomerById)
 router.patch('/:customerId', auth.validJWTNeeded, fileUpload.array('Image'), customer.updateCustomer)
 router.delete('/:customerId', customer.deleteCustomer)

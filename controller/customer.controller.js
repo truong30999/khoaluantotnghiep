@@ -1,11 +1,15 @@
 const Customer = require('../models/Customer.model')
 const Room = require('../models/Room.model')
+const Bill = require('../models/Bill.model')
+const Contract = require('../models/Contract.model')
+
 const common = require('../utility/common')
 const jwt = require('jsonwebtoken')
 const fs = require('fs');
 const crypto = require("crypto");
 const Nexmo = require('nexmo');
 const config = require("../config/config")
+const { resolveSoa } = require('dns')
 const nexmo = new Nexmo({
     apiKey: config.NEXMO_API_KEY,
     apiSecret: config.NEXMO_API_SECRET,
@@ -134,10 +138,6 @@ exports.deleteCustomer = async (req, res) => {
     }
 }
 exports.isPasswordAndPhoneMatch = (req, res, next) => {
-    // if (req.body.Phone.length !== 10) {
-    //     return res.json({ error: "Vui lòng nhập đúng số điện thoại!" })
-    // }
-
     Customer.findOne({ Phone: req.body.Phone })
         .then((customer) => {
             if (!customer) {
@@ -165,5 +165,63 @@ exports.login = (req, res) => {
         res.status(500).send(err);
     }
 };
-
-
+exports.getListBillCustomer = async (req, res) => {
+    try {
+        const customer = await Customer.findById(req.jwt.customerId)
+        const listBill = await Bill.find({ RoomId: customer.RoomId }, 'EndDate RoomNumber TotalBill Status').sort({ EndDate: 'desc' })
+        res.json(listBill)
+    } catch (error) {
+        res.json(error)
+    }
+}
+exports.getInfoBill = async (req, res) => {
+    try {
+        const bill = await Bill.findById(req.params.billId)
+        res.json(bill)
+    } catch (err) {
+        res.json({ error: err })
+    }
+}
+exports.getContract = async (req, res) => {
+    try {
+        const customer = await Customer.findById(req.jwt.customerId)
+        const contract = await Contract.find({ Room: customer.RoomId, Status: { $nin: [-1, 0] } })
+        res.json(contract)
+    } catch (error) {
+        res.json({ error: error })
+    }
+}
+exports.confirmContract = async (req, res) => {
+    try {
+        const result = await Contract.findOneAndUpdate({ _id: req.body.contractId }, { Status: 1 })
+        res.json(result)
+    } catch (error) {
+        res.json({ error: error })
+    }
+}
+exports.changePassword = async (req, res) => {
+    try {
+        const customer = await Customer.findById(req.jwt.customerId)
+        const oldPass = req.body.oldPassword
+        const newPass = req.body.newPassword
+        let passwordFields = customer.Password.split('$');
+        let salt = passwordFields[0];
+        let hash = crypto.createHmac('sha512', salt).update(String(oldPass)).digest("base64");
+        if (hash === passwordFields[1]) {
+            let newsalt = crypto.randomBytes(16).toString("base64");
+            let newhash = crypto
+                .createHmac("sha512", salt)
+                .update(newPass)
+                .digest("base64");
+            const newPassword = newsalt + "$" + newhash;
+            customer.Password = newPassword
+            await customer.save()
+            res.json({ message: "Update password success" })
+        } else {
+            return res.json({ error: 'Invalid old password' });
+        }
+        res.json()
+    } catch (error) {
+        res.json({ error: error })
+    }
+}
