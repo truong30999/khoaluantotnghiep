@@ -190,7 +190,7 @@ exports.getContract = async (req, res) => {
             .populate("Lessor")
             .populate("Renter")
             .populate("House", "Name Address")
-            .populate("Room", "RoomNumber")
+            .populate("Room", "RoomNumber Price")
         res.json(contract)
     } catch (error) {
         res.json({ error: error })
