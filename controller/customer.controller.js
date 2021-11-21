@@ -148,6 +148,7 @@ exports.isPasswordAndPhoneMatch = (req, res, next) => {
                 let hash = crypto.createHmac('sha512', salt).update(String(req.body.Password)).digest("base64");
                 if (hash === passwordFields[1]) {
                     req.body = {
+                        customerInfo: customer,
                         customerId: customer._id,
                     };
                     return next();
@@ -160,7 +161,7 @@ exports.isPasswordAndPhoneMatch = (req, res, next) => {
 exports.login = (req, res) => {
     try {
         let token = jwt.sign(req.body, config.jwtSecret, { expiresIn: '15m' });
-        res.json({ customerId: req.body.customerId, accessToken: token });
+        res.json({ customerId: req.body.customerId, customerInfo: req.body.customerInfo, accessToken: token });
     } catch (err) {
         res.status(500).send(err);
     }
@@ -186,6 +187,10 @@ exports.getContract = async (req, res) => {
     try {
         const customer = await Customer.findById(req.jwt.customerId)
         const contract = await Contract.find({ Room: customer.RoomId, Status: { $nin: [-1, 0] } })
+            .populate("Lessor")
+            .populate("Renter")
+            .populate("House", "Name Address")
+            .populate("Room", "RoomNumber")
         res.json(contract)
     } catch (error) {
         res.json({ error: error })

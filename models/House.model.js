@@ -1,9 +1,17 @@
 const mongoose = require('mongoose');
- 
+
 const houseSchema = mongoose.Schema({
-    Name: { type: String},
-    Address: {type: String},
-    Rooms:[{
+    Name: { type: String },
+    Address: { type: String },
+    // tỉnh/thành phố
+    Province: { type: String },
+    // quận/huyện
+    District: { type: String },
+    // phường/xã
+    Ward: { type: String },
+    // đánh giá
+    Rating: { type: Number },
+    Rooms: [{
         type: mongoose.Schema.Types.ObjectId,
         ref: "Room"
     }],
@@ -11,6 +19,7 @@ const houseSchema = mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: "Users"
     }
+
 });
 
-module.exports= mongoose.model("House", houseSchema);
+module.exports = mongoose.model("House", houseSchema);
