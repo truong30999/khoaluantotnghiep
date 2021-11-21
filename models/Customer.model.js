@@ -6,7 +6,7 @@ const customerSchema = mongoose.Schema({
         type: String,
         require: true
     },
-    Age: { type: Number },
+    Age: { type: Date },
     DateOfBirth: { type: Date },
     Phone: { type: String, require: true },
     Password: { type: String },
