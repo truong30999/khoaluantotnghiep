@@ -215,7 +215,7 @@ exports.changePassword = async (req, res) => {
         if (hash === passwordFields[1]) {
             let newsalt = crypto.randomBytes(16).toString("base64");
             let newhash = crypto
-                .createHmac("sha512", salt)
+                .createHmac("sha512", newsalt)
                 .update(newPass)
                 .digest("base64");
             const newPassword = newsalt + "$" + newhash;
