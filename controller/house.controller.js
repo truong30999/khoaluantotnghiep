@@ -6,9 +6,13 @@ const User = require('../models/User.model')
 exports.createHouse = async (req, res) => {
     const house = new House({
         Name: req.body.Name,
-        Address: req.body.Address,
         Room: req.body.Room,
-        UserId: req.body.UserId
+        UserId: req.body.UserId,
+        Province: req.body.Province,
+        District: req.body.District,
+        Ward: req.body.Ward,
+        Address: req.body.Address,
+        Rating: 0
     })
     try {
         const createHouse = await house.save()

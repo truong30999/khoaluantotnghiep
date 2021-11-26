@@ -2,6 +2,7 @@ const Customer = require('../models/Customer.model')
 const Room = require('../models/Room.model')
 const Bill = require('../models/Bill.model')
 const Contract = require('../models/Contract.model')
+const House = require('../models/House.model')
 
 const common = require('../utility/common')
 const jwt = require('jsonwebtoken')
@@ -225,8 +226,37 @@ exports.changePassword = async (req, res) => {
         } else {
             return res.json({ error: 'Invalid old password' });
         }
-        res.json()
     } catch (error) {
         res.json({ error: error })
     }
+}
+exports.searchHouse = async (req, res) => {
+    // req.body.Province, req.body.District
+    // req.query.offset, req.query.limit
+    const page = parseInt(req.query.page)
+    const limit = parseInt(req.query.limit)
+    const skipIndex = (page - 1) * limit
+    const province = req.body.Province
+    const district = req.body.District
+
+    try {
+        const result = await House.find({ Province: province, District: district })
+            .populate("UserId")
+            .limit(limit)
+            .skip(skipIndex)
+            .exec();
+        res.json(result)
+    } catch (e) {
+        res.json({ error: e })
+    }
+}
+exports.getRoomByHouse = async (req, res) => {
+    const houseId = req.params.houseId
+    try {
+        const listRoom = await Room.find({ HouseId: houseId, Status: 0 }, "Price Length Width Details Image")
+        res.json(listRoom)
+    } catch (error) {
+        res.json({ error: error })
+    }
+
 }

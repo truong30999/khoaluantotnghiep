@@ -1,14 +1,14 @@
 const mongoose = require('mongoose');
- 
+
 const roomSchema = mongoose.Schema({
 
-    RoomNumber:{
+    RoomNumber: {
         type: Number,
-        require : true,
+        require: true,
     },
-    HouseId:{
+    HouseId: {
         type: mongoose.Schema.Types.ObjectId,
-        ref:"House"
+        ref: "House"
     },
     Length: {
         type: Number
@@ -16,11 +16,11 @@ const roomSchema = mongoose.Schema({
     Width: {
         type: Number
     },
-    Price:{
+    Price: {
         type: Number,
-        require : true
+        require: true
     },
-    Details:{
+    Details: {
         type: String
     },
     Image: {
@@ -28,22 +28,22 @@ const roomSchema = mongoose.Schema({
     },
     ListPerson: [{
         type: mongoose.Schema.Types.ObjectId,
-        ref:"Customers"
+        ref: "Customers"
     }],
-    ListService:[{
+    ListService: [{
         type: mongoose.Schema.Types.ObjectId,
-        ref:"Service"
+        ref: "Service"
     }],
-    ListUtilityBill:[{
+    ListUtilityBill: [{
         type: mongoose.Schema.Types.ObjectId,
-        ref:"UtilityBill"
+        ref: "UtilityBill"
     }],
-    ListBill:[{
+    ListBill: [{
         type: mongoose.Schema.Types.ObjectId,
-        ref:"Bill"
+        ref: "Bill"
     }],
-    Status:{ type: Number,require: true}
+    Status: { type: Number, require: true }
 });
 
-module.exports= mongoose.model("Room", roomSchema);
+module.exports = mongoose.model("Room", roomSchema);
 

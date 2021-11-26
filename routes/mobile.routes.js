@@ -9,7 +9,8 @@ router.patch('/contract/confirm', customer.confirmContract)
 
 router.get('/bill', auth.validJWTNeeded, customer.getListBillCustomer)
 router.get('/bill/:billId', customer.getInfoBill)
-
+router.get('/house', customer.searchHouse)
+router.get('/house/:houseId', customer.getRoomByHouse)
 router.post('/login', customer.isPasswordAndPhoneMatch, customer.login)
 //router.patch('/:customerId', auth.validJWTNeeded, fileUpload.array('Image'), customer.updateCustomer)
 router.patch('/changePassword', auth.validJWTNeeded, customer.changePassword)
