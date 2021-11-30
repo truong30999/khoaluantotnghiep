@@ -232,20 +232,20 @@ exports.changePassword = async (req, res) => {
 }
 exports.searchHouse = async (req, res) => {
     // req.body.Province, req.body.District
-    // req.query.offset, req.query.limit
+    // req.query.page, req.query.limit
     const page = parseInt(req.query.page)
     const limit = parseInt(req.query.limit)
     const skipIndex = (page - 1) * limit
-    const province = req.body.Province
-    const district = req.body.District
-
+    const province = new RegExp(`${req.query.province}`, 'i')
+    const district = new RegExp(`${req.query.district}`, 'i')
     try {
-        const result = await House.find({ Province: province, District: district })
-            .populate("UserId")
+        const result = await House.find({ Province: province, District: district }, "Name UserId Province District Ward Address Rating Rooms")
+            .populate("UserId", "Name Email Phone")
             .limit(limit)
             .skip(skipIndex)
             .exec();
         res.json(result)
+        //console.log(result)
     } catch (e) {
         res.json({ error: e })
     }
