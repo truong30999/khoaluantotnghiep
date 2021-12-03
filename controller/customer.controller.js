@@ -253,7 +253,7 @@ exports.searchHouse = async (req, res) => {
 exports.getRoomByHouse = async (req, res) => {
     const houseId = req.params.houseId
     try {
-        const listRoom = await Room.find({ HouseId: houseId, Status: 0 }, "Price Length Width Details Image")
+        const listRoom = await Room.find({ HouseId: houseId, Status: 0 }, "Price Length Width Details Image RoomNumber")
         res.json(listRoom)
     } catch (error) {
         res.json({ error: error })
