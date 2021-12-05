@@ -1,7 +1,7 @@
+const { ObjectId, Number } = require('mongoose');
 const mongoose = require('mongoose');
 
 const customerSchema = mongoose.Schema({
-
     Name: {
         type: String,
         require: true
@@ -26,7 +26,8 @@ const customerSchema = mongoose.Schema({
     UserId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "Users"
-    }
+    },
+    ListRating: []
 });
 
 module.exports = mongoose.model("Customers", customerSchema);

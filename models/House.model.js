@@ -9,8 +9,10 @@ const houseSchema = mongoose.Schema({
     District: { type: String },
     // phường/xã
     Ward: { type: String },
-    // đánh giá
-    Rating: { type: Number },
+    // tổng điểm đánh giá
+    TotalRating: { type: Number },
+    // số lượt đánh giá
+    NumberOfReview: { type: Number },
     Rooms: [{
         type: mongoose.Schema.Types.ObjectId,
         ref: "Room"

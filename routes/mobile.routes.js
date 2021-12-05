@@ -5,6 +5,8 @@ const customer = require('../controller/customer.controller')
 const auth = require("../controller/auth.controller")
 
 router.get('/contract', auth.validJWTNeeded, customer.getContract)
+router.get('/rating', auth.validJWTNeeded, customer.getRating)
+
 router.patch('/contract/confirm', customer.confirmContract)
 
 router.get('/bill', auth.validJWTNeeded, customer.getListBillCustomer)
@@ -12,6 +14,7 @@ router.get('/bill/:billId', customer.getInfoBill)
 router.get('/house', customer.searchHouse)
 router.get('/house/:houseId', customer.getRoomByHouse)
 router.post('/login', customer.isPasswordAndPhoneMatch, customer.login)
+router.post('/rating', auth.validJWTNeeded, customer.rating)
 //router.patch('/:customerId', auth.validJWTNeeded, fileUpload.array('Image'), customer.updateCustomer)
 router.patch('/changePassword', auth.validJWTNeeded, customer.changePassword)
 

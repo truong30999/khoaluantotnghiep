@@ -8,13 +8,8 @@ const common = require('../utility/common')
 const jwt = require('jsonwebtoken')
 const fs = require('fs');
 const crypto = require("crypto");
-const Nexmo = require('nexmo');
 const config = require("../config/config")
-const { resolveSoa } = require('dns')
-const nexmo = new Nexmo({
-    apiKey: config.NEXMO_API_KEY,
-    apiSecret: config.NEXMO_API_SECRET,
-}, { debug: true });
+
 exports.createCustomer = async (req, res, next) => {
     const customer = await Customer.findOne({ Phone: req.body.Phone })
     if (customer) {
@@ -41,7 +36,8 @@ exports.createCustomer = async (req, res, next) => {
             PlaceCmnd: req.body.PlaceCmnd,
             Image: imgArr,
             UserId: req.jwt.userId,
-            RoomId: req.body.RoomId
+            RoomId: req.body.RoomId,
+            ListRating: {}
         })
         const room = await Room.findById(req.body.RoomId)
         if (room.ListPerson.length === 0) {
@@ -50,8 +46,6 @@ exports.createCustomer = async (req, res, next) => {
         room.ListPerson.push(customer._id)
         await room.save()
         let result = await customer.save()
-
-
         res.json(result)
 
     } catch (err) {
@@ -245,7 +239,6 @@ exports.searchHouse = async (req, res) => {
             .skip(skipIndex)
             .exec();
         res.json(result)
-        //console.log(result)
     } catch (e) {
         res.json({ error: e })
     }
@@ -258,5 +251,53 @@ exports.getRoomByHouse = async (req, res) => {
     } catch (error) {
         res.json({ error: error })
     }
-
+}
+exports.rating = async (req, res) => {
+    // req.body.rating 
+    try {
+        const rating = Number(req.body.rating)
+        const customer = await Customer.findById(req.jwt.customerId).populate("RoomId", "HouseId")
+        const house = await House.findById(customer.RoomId.HouseId)
+        const houseId = String(customer.RoomId.HouseId)
+        let existRating = false
+        for (let i = 0; i < customer.ListRating.length; i++) {
+            if (customer.ListRating[i].HouseId === houseId) {
+                house.TotalRating = (house.TotalRating - customer.ListRating[i].Rating + rating)
+                const ojb = { HouseId: houseId, Rating: rating }
+                customer.ListRating.splice(i, 1)
+                customer.ListRating.push(ojb)
+                existRating = true
+                await house.save()
+                await customer.save()
+                res.json(ojb)
+                break
+            }
+        }
+        if (!existRating) {
+            const ojb = { HouseId: houseId, Rating: rating }
+            house.TotalRating = house.TotalRating + rating
+            house.NumberOfReview = house.NumberOfReview + 1
+            customer.ListRating.push(ojb)
+            await house.save()
+            await customer.save()
+            res.json(ojb)
+        }
+    } catch (error) {
+        res.json({ error: error })
+    }
+}
+exports.getRating = async (req, res) => {
+    try {
+        const customer = await Customer.findById(req.jwt.customerId).populate("RoomId", "HouseId")
+        const house = await House.findById(customer.RoomId.HouseId)
+        let existRating = {}
+        for (let i = 0; i < customer.ListRating.length; i++) {
+            if (customer.ListRating[i].HouseId === String(house._id)) {
+                existRating = customer.ListRating[i]
+            }
+        }
+        res.json(existRating)
+    } catch (error) {
+        res.json({ error: error })
+    }
 }
