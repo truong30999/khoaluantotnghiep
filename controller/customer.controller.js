@@ -75,7 +75,6 @@ exports.createCustomer = async (req, res, next) => {
     } catch (err) {
         res.json({ message: err.message })
     }
-
 }
 
 exports.getAllCustomerOfUser = async (req, res) => {
