@@ -8,6 +8,7 @@ const path = require("path");
 const UserController = require("./controller/user.controller");
 const CronJob = require('cron').CronJob;
 const CronTime = require('cron').CronTime;
+require('dotenv').config()
 //Start App
 const User = require("./models/User.model");
 const app = express();

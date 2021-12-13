@@ -9,6 +9,8 @@ const jwt = require('jsonwebtoken')
 const fs = require('fs');
 const crypto = require("crypto");
 const config = require("../config/config")
+const AWS = require('aws-sdk');
+
 
 exports.createCustomer = async (req, res, next) => {
     const customer = await Customer.findOne({ Phone: req.body.Phone })
@@ -16,19 +18,21 @@ exports.createCustomer = async (req, res, next) => {
         return res.json({ error: "Phone already used!" });
     }
     let imgArr = common.convertArrImage(req.files)
+
     try {
         let salt = crypto.randomBytes(16).toString("base64");
+        let password = "123456"
         let hash = crypto
             .createHmac("sha512", salt)
-            .update("123456")
+            .update(password)
             .digest("base64");
-        const password = salt + "$" + hash;
+        const passwordHash = salt + "$" + hash;
         const customer = new Customer({
             Name: req.body.Name,
             Age: req.body.Age,
             DateOfBirth: req.body.DateOfBirth,
             Phone: req.body.Phone,
-            Password: password,
+            Password: passwordHash,
             Email: req.body.Email,
             PermanentAddress: req.body.PermanentAddress,
             Cmnd: req.body.Cmnd,
@@ -39,6 +43,7 @@ exports.createCustomer = async (req, res, next) => {
             RoomId: req.body.RoomId,
             ListRating: {}
         })
+
         const room = await Room.findById(req.body.RoomId)
         if (room.ListPerson.length === 0) {
             room.Status = 1
@@ -46,6 +51,25 @@ exports.createCustomer = async (req, res, next) => {
         room.ListPerson.push(customer._id)
         await room.save()
         let result = await customer.save()
+        let phone = '+84' + customer.Phone.substring(1)
+        const params = {
+            Message: 'Your password of app is: 123456',
+            PhoneNumber: phone,
+            MessageAttributes: {
+                'AWS.SNS.SMS.SMSType': {
+                    DataType: 'String',
+                    StringValue: 'Transactional'
+                }
+            }
+        };
+        const publishTextPromise = new AWS.SNS({ apiVersion: '2010-03-31' }).publish(params).promise();
+        publishTextPromise.then(
+            function (data) {
+                console.log("MessageID is " + data.MessageId);
+            }).catch(
+                function (err) {
+                    console.error(err, err.stack);
+                });
         res.json(result)
 
     } catch (err) {

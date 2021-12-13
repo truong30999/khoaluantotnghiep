@@ -2,6 +2,7 @@ const Customer = require("../models/Customer.model")
 const common = require("../utility/common")
 const UtilityBill = require("../models/Utilitybills.model")
 const config = require("../config/config")
+const AWS = require('aws-sdk');
 
 exports.remindUpdateElectricAndWater = async () => {
     const currentDate = new Date()
@@ -18,5 +19,4 @@ exports.remindUpdateElectricAndWater = async () => {
     }
 }
 exports.test = async () => {
-
 }
