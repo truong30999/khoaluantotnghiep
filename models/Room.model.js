@@ -1,3 +1,4 @@
+const { Date } = require('mongoose');
 const mongoose = require('mongoose');
 
 const roomSchema = mongoose.Schema({
@@ -42,7 +43,9 @@ const roomSchema = mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: "Bill"
     }],
-    Status: { type: Number, require: true }
+    // 3: đang đăng tin, 0: trong, 1: da thue
+    Status: { type: Number, require: true },
+    TimePost: { type: Date }
 });
 
 module.exports = mongoose.model("Room", roomSchema);

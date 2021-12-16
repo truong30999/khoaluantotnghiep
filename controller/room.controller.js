@@ -23,6 +23,7 @@ exports.createRoom = async (req, res) => {
         Image: imgArr,
         HouseId: req.body.HouseId,
         ListPerson: [],
+        TimePost: null,
         Status: 0
     })
     try {
@@ -253,5 +254,24 @@ exports.getNotEmptyRoom = async (req, res) => {
         res.json({ AmountOfRoom: roomNumber })
     } catch (error) {
         res.json({ message: error.message })
+    }
+}
+exports.postRoom = async (req, res) => {
+    //req.params.roomId
+    try {
+        const date = new Date()
+        const room = await Room.findOneAndUpdate({ _id: req.params.roomId }, { Status: 3, TimePost: date })
+        res.json(room)
+    } catch (error) {
+        res.json({ message: error })
+    }
+}
+exports.unpostRoom = async (req, res) => {
+    //req.params.roomId
+    try {
+        const room = await Room.findOneAndUpdate({ _id: req.params.roomId }, { Status: 0 })
+        res.json(room)
+    } catch (error) {
+        res.json({ message: error })
     }
 }

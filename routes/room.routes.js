@@ -19,6 +19,10 @@ router.get('/service/:roomId', Room.getServiceOfRoom)
 
 router.post('/', auth.validJWTNeeded, fileUpload.array('Image'), Room.createRoom)
 
+router.patch('/:roomId/post', Room.postRoom)
+
+router.patch('/:roomId/unpost', Room.unpostRoom)
+
 router.patch('/:roomId/addService/:serviceId', Room.addServiceToRoom)
 
 router.patch('/:roomId/removeService/:serviceId', Room.removeServiceToRoom)

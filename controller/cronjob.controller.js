@@ -1,4 +1,7 @@
 const Customer = require("../models/Customer.model")
+const Room = require("../models/Room.model")
+const House = require("../models/House.model")
+
 const common = require("../utility/common")
 const UtilityBill = require("../models/Utilitybills.model")
 const config = require("../config/config")
@@ -19,4 +22,14 @@ exports.remindUpdateElectricAndWater = async () => {
     }
 }
 exports.test = async () => {
+    const house = await House.aggregate([
+        {
+            $match: {
+                NumberOfReview: { $gt: 0 }
+            }
+        }
+    ])
+        .addFields({ score: { $divide: ["$TotalRating", "$NumberOfReview"] } })
+        .sort({ score: 'desc' });
+    console.log(house)
 }

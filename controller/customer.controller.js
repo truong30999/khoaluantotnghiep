@@ -269,7 +269,7 @@ exports.searchHouse = async (req, res) => {
 exports.getRoomByHouse = async (req, res) => {
     const houseId = req.params.houseId
     try {
-        const listRoom = await Room.find({ HouseId: houseId, Status: 0 }, "Price Length Width Details Image RoomNumber")
+        const listRoom = await Room.find({ HouseId: houseId, Status: { $in: [3, 0] } }, "Price Length Width Details Image RoomNumber")
         res.json(listRoom)
     } catch (error) {
         res.json({ error: error })
@@ -320,6 +320,40 @@ exports.getRating = async (req, res) => {
             }
         }
         res.json(existRating)
+    } catch (error) {
+        res.json({ error: error })
+    }
+}
+exports.getHouseTopRating = async (req, res) => {
+    try {
+        const house = await House.aggregate([
+            {
+                $match: {
+                    NumberOfReview: { $gt: 0 }
+                }
+            }
+        ])
+            .addFields({ score: { $divide: ["$TotalRating", "$NumberOfReview"] } })
+            .sort({ score: 'desc' })
+            .limit(8);
+        res.json(house)
+    } catch (error) {
+        res.json({ error: error })
+    }
+}
+exports.getRoomRelatePost = async (req, res) => {
+    try {
+        const room = await Room.find({ Status: 3 }, "Price Length Width Details Image HouseId TimePost")
+            .populate({
+                path: 'HouseId',
+                select: 'Name Address Province District Ward UserId',
+                populate: {
+                    path: 'UserId',
+                    select: 'Name Phone Email'
+                }
+            })
+            .sort({ TimePost: 'desc' }).limit(14)
+        res.json(room)
     } catch (error) {
         res.json({ error: error })
     }
