@@ -256,7 +256,7 @@ exports.searchHouse = async (req, res) => {
     const province = new RegExp(`${req.query.province}`, 'i')
     const district = new RegExp(`${req.query.district}`, 'i')
     try {
-        const result = await House.find({ Province: province, District: district }, "Name UserId Province District Ward Address Rating Rooms")
+        const result = await House.find({ Province: province, District: district }, "Name UserId Province District Ward Address TotalRating NumberOfReview Rooms")
             .populate("UserId", "Name Email Phone")
             .limit(limit)
             .skip(skipIndex)
@@ -269,7 +269,7 @@ exports.searchHouse = async (req, res) => {
 exports.getRoomByHouse = async (req, res) => {
     const houseId = req.params.houseId
     try {
-        const listRoom = await Room.find({ HouseId: houseId, Status: { $in: [3, 0] } }, "Price Length Width Details Image RoomNumber")
+        const listRoom = await Room.find({ HouseId: houseId, Status: { $in: [3] } }, "Price Length Width Details Image RoomNumber")
         res.json(listRoom)
     } catch (error) {
         res.json({ error: error })
@@ -330,6 +330,29 @@ exports.getHouseTopRating = async (req, res) => {
             {
                 $match: {
                     NumberOfReview: { $gt: 0 }
+                }
+            },
+            {
+                $lookup: {
+                    from: "users",
+                    localField: "UserId",
+                    foreignField: "_id",
+                    as: "UserId"
+                }
+            },
+            {
+                $project: {
+                    "Name": 1,
+                    "Province": 1,
+                    "District": 1,
+                    "Ward": 1,
+                    "Address": 1,
+                    "TotalRating": 1,
+                    "NumberOfReview": 1,
+                    "Rooms": 1,
+                    "UserId.Name": 1,
+                    "UserId.Email": 1,
+                    "UserId.Phone": 1
                 }
             }
         ])
