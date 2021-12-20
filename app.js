@@ -112,7 +112,7 @@ let remindjob = new CronJob('0 8 27 * *', () => {
 //connect to db
 mongoose.connect(
   "mongodb+srv://truong:Khang250904@cluster0.xlqnr.mongodb.net/test1?retryWrites=true&w=majority",
-  { useNewUrlParser: true, useUnifiedTopology: true },
+  { useNewUrlParser: true, useUnifiedTopology: true, useFindAndModify: false },
   () => console.log("connect to db success")
 );
 // Launch app to the specified port

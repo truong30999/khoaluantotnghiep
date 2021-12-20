@@ -2,8 +2,8 @@ const Bill = require('../models/Bill.model')
 const Room = require('../models/Room.model')
 const House = require('../models/House.model')
 const UtilityBill = require('../models/Utilitybills.model')
-
-
+const axios = require('axios');
+const config = require("../config/config")
 exports.createBill = async (req, res) => {
     const result = await this.calculateBill(req.body.RoomId, req.body.Month)
     return res.json(result)
@@ -132,7 +132,7 @@ exports.calculateBill = async (RoomId, Month) => {
         Status: 0
     })
     //lấy dịch vụ của phòng
-    const room = await Room.findOne({ _id: RoomId }).populate("ListService")
+    const room = await Room.findOne({ _id: RoomId }).populate("ListService").populate("ListPerson", "DeviceToken")
     bill.RoomPrice = room.Price
     bill.RoomNumber = room.RoomNumber
     const listUl = await UtilityBill.find({
@@ -166,6 +166,22 @@ exports.calculateBill = async (RoomId, Month) => {
             const result = await bill.save()
             room.ListBill.push(result["_id"])
             room.save()
+            // push notification to app
+            room.ListPerson.map(async (customer) => {
+                if (customer.DeviceToken !== null) {
+                    const paramsAPI = {
+                        "to": customer.DeviceToken,
+                        "notification": {
+                            "title": "AppPhongTro",
+                            "body": `Đã có hóa đơn tháng ${currentMonth.getMonth()}`
+                        },
+                        "priority": "high",
+                        "data": {
+                        }
+                    }
+                    await axios.post("https://fcm.googleapis.com/fcm/send", paramsAPI, { headers: { Authorization: 'key=' + config.API_FIREBASE_PUSH_NOTIFI } })
+                }
+            })
             return result;
         }
         else {

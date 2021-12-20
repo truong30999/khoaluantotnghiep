@@ -41,7 +41,8 @@ exports.createCustomer = async (req, res, next) => {
             Image: imgArr,
             UserId: req.jwt.userId,
             RoomId: req.body.RoomId,
-            ListRating: {}
+            ListRating: [],
+            DeviceToken: null
         })
 
         const room = await Room.findById(req.body.RoomId)
@@ -377,6 +378,14 @@ exports.getRoomRelatePost = async (req, res) => {
             })
             .sort({ TimePost: 'desc' }).limit(14)
         res.json(room)
+    } catch (error) {
+        res.json({ error: error })
+    }
+}
+exports.updateDeviceInfo = async (req, res) => {
+    try {
+        const result = await Customer.findOneAndUpdate({ _id: req.jwt.customerId }, { DeviceToken: req.body.DeviceToken })
+        res.json(result)
     } catch (error) {
         res.json({ error: error })
     }

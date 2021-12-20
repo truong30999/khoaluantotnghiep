@@ -6,6 +6,7 @@ const common = require("../utility/common")
 const UtilityBill = require("../models/Utilitybills.model")
 const config = require("../config/config")
 const AWS = require('aws-sdk');
+const axios = require('axios');
 
 exports.remindUpdateElectricAndWater = async () => {
     const currentDate = new Date()
@@ -22,14 +23,15 @@ exports.remindUpdateElectricAndWater = async () => {
     }
 }
 exports.test = async () => {
-    const house = await House.aggregate([
-        {
-            $match: {
-                NumberOfReview: { $gt: 0 }
-            }
+    const paramsAPI = {
+        "to": "efAXIF75Scq5Wg_ZfWsfSk:APA91bHUQIpsPtPVwiLxDh-k3olgOyQwt0ZDjHjf492dNugfoGknW3NVo3I8-BSOIy54ly6UhTjtJVsXKTECsdi79o6kbPo0hKVr_M7q_ocjf33di1faFdz-129dUJZ__w-o3mvKySN0",
+        "notification": {
+            "title": "AppPhongTro",
+            "body": `Đã có hóa đơn tháng ${9}`
+        },
+        "priority": "high",
+        "data": {
         }
-    ])
-        .addFields({ score: { $divide: ["$TotalRating", "$NumberOfReview"] } })
-        .sort({ score: 'desc' });
-    console.log(house)
+    }
+    await axios.post("https://fcm.googleapis.com/fcm/send", paramsAPI, { headers: { Authorization: 'key=' + config.API_FIREBASE_PUSH_NOTIFI } })
 }

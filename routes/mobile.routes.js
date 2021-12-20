@@ -9,6 +9,7 @@ router.get('/rating', auth.validJWTNeeded, customer.getRating)
 router.get('/top-rating-house', customer.getHouseTopRating)
 router.get('/room-relate-post', customer.getRoomRelatePost)
 router.patch('/contract/confirm', customer.confirmContract)
+router.patch('/device-token', auth.validJWTNeeded, customer.updateDeviceInfo)
 
 router.get('/bill', auth.validJWTNeeded, customer.getListBillCustomer)
 router.get('/bill/:billId', customer.getInfoBill)

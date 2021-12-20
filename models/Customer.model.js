@@ -27,7 +27,8 @@ const customerSchema = mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: "Users"
     },
-    ListRating: []
+    ListRating: [],
+    DeviceToken: { type: String }
 });
 
 module.exports = mongoose.model("Customers", customerSchema);
