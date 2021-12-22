@@ -12,6 +12,7 @@ exports.recalculateBill = async (req, res) => {
     try {
         const bill = await Bill.findById(req.params.billId)
         const date = new Date(bill.EndDate)
+        const previousMonth = new Date(bill.StartDate)
         bill.TotalBill = 0
         bill.OtherCosts = ""
         const listUl = await UtilityBill.find({
@@ -44,6 +45,21 @@ exports.recalculateBill = async (req, res) => {
             }
             bill.TotalBill += (bill.ElectricFee + bill.WaterFee + bill.RoomPrice)
             const result = await bill.save()
+            room.ListPerson.map(async (customer) => {
+                if (customer.DeviceToken !== null) {
+                    const paramsAPI = {
+                        "to": customer.DeviceToken,
+                        "notification": {
+                            "title": "AppPhongTro",
+                            "body": `Đã tính lại hóa đơn tháng ${(previousMonth.getMonth())}`
+                        },
+                        "priority": "high",
+                        "data": {
+                        }
+                    }
+                    await axios.post("https://fcm.googleapis.com/fcm/send", paramsAPI, { headers: { Authorization: 'key=' + config.API_FIREBASE_PUSH_NOTIFI } })
+                }
+            })
             return res.json(result);
         }
         res.json({ error: "Không có chỉ số điện nước" })
@@ -173,7 +189,7 @@ exports.calculateBill = async (RoomId, Month) => {
                         "to": customer.DeviceToken,
                         "notification": {
                             "title": "AppPhongTro",
-                            "body": `Đã có hóa đơn tháng ${currentMonth.getMonth()}`
+                            "body": `Đã có hóa đơn tháng ${(previousMonth.getMonth() + 1)}`
                         },
                         "priority": "high",
                         "data": {
