@@ -51,6 +51,7 @@ const billRouter = require("./routes/bill.routes");
 const registerRouter = require("./routes/register.routes");
 const contractRouter = require("./routes/contract.routes");
 const mobileRouter = require("./routes/mobile.routes")
+const statisticalRouter = require("./routes/statistical.routes")
 app.use("/uploads/images", express.static(path.join("uploads", "images")));
 app.use("/user", userRouter);
 app.use("/room", roomRouter);
@@ -62,6 +63,7 @@ app.use("/service", serviceRouter);
 app.use("/bill", billRouter);
 app.use("/register", registerRouter);
 app.use("/contract", contractRouter)
+app.use("/statistical", statisticalRouter)
 app.use("/api/mobile", mobileRouter)
 //routes
 

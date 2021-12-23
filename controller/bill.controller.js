@@ -2,6 +2,8 @@ const Bill = require('../models/Bill.model')
 const Room = require('../models/Room.model')
 const House = require('../models/House.model')
 const UtilityBill = require('../models/Utilitybills.model')
+const Statistical = require('../models/Statistical.model')
+const _ = require('underscore');
 const axios = require('axios');
 const config = require("../config/config")
 exports.createBill = async (req, res) => {
@@ -79,13 +81,40 @@ exports.updateBill = async (req, res) => {
         res.json({ message: error.message })
     }
 }
+exports.updateStatus = async (req, res) => {
+    // req.params.billId
+    try {
+        const bill = await Bill.findById(req.params.billId)
+        const room = await Room.findById(bill.RoomId)
+        bill.Status = 1
+        const result = await bill.save()
+        const date = bill.EndDate
+        const existStatistical = await Statistical.find({ HouseId: room.HouseId, Year: date.getFullYear(), Month: date.getMonth() })
+        if (_.isEmpty(existStatistical)) {
+            const newStatistical = new Statistical({
+                HouseId: room.HouseId,
+                Year: date.getFullYear(),
+                Month: date.getMonth(),
+                TotalRevenue: bill.TotalBill
+            })
+            await newStatistical.save()
+        } else {
+            const statistical = await Statistical.findById(existStatistical[0]._id)
+            statistical.TotalRevenue += bill.TotalBill
+            await statistical.save()
+        }
+        res.json(result)
+    } catch (error) {
+        res.json({ message: error.message })
+    }
+}
 exports.deleteBill = async (req, res) => {
     try {
         const bill = await Bill.findById(req.params.billId)
         const room = await Room.findById(bill.RoomId)
         const pos = room.ListBill.indexOf(req.params.billId)
         room.ListBill.splice(pos, 1)
-        room.save()
+        await room.save()
         const deleteBill = await Bill.remove({ _id: req.params.billId })
         res.json(deleteBill)
     } catch (error) {
@@ -181,7 +210,7 @@ exports.calculateBill = async (RoomId, Month) => {
             bill.TotalBill += (bill.ElectricFee + bill.WaterFee + bill.RoomPrice)
             const result = await bill.save()
             room.ListBill.push(result["_id"])
-            room.save()
+            await room.save()
             // push notification to app
             room.ListPerson.map(async (customer) => {
                 if (customer.DeviceToken !== null) {
