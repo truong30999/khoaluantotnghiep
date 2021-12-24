@@ -12,7 +12,7 @@ exports.createContract = async (req, res) => {
         contract.House = room.HouseId
         contract.Room = customer.RoomId
         contract.Rent = room.Price
-        contract.AddressHouse = house.Address
+        contract.AddressHouse = `${house.Address}, ${house.Ward}, ${house.District}, ${house.Province}`
         contract.Terms = ""
         const result = await contract.save()
         res.json(result)
