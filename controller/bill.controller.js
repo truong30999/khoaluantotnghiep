@@ -92,12 +92,12 @@ exports.updateStatus = async (req, res) => {
         bill.Status = 1
         const result = await bill.save()
         const date = bill.EndDate
-        const existStatistical = await Statistical.find({ HouseId: room.HouseId, Year: date.getFullYear(), Month: date.getMonth() })
+        const existStatistical = await Statistical.find({ HouseId: room.HouseId, Year: date.getFullYear(), Month: date.getMonth() + 1 })
         if (_.isEmpty(existStatistical)) {
             const newStatistical = new Statistical({
                 HouseId: room.HouseId,
                 Year: date.getFullYear(),
-                Month: date.getMonth(),
+                Month: (date.getMonth() + 1),
                 TotalRevenue: bill.TotalBill
             })
             await newStatistical.save()
