@@ -5,7 +5,7 @@ const House = require('../models/House.model')
 exports.createUtilityBills = async (req, res) => {
     try {
         const time = new Date(req.body.Time)
-        const abc = new Date(time.getFullYear(), time.getMonth() + 1)
+        const abc = new Date(time.getFullYear(), time.getMonth() + 1, 0)
         const existUtil = await UtilityBill.find({ RoomId: req.body.RoomId, Time: abc })
         if (existUtil.length !== 0) {
             res.json({ error: "Chỉ số đã tồn tại" })
@@ -32,7 +32,7 @@ exports.createUtilityBills = async (req, res) => {
 exports.getAllUtilityByRoom = async (req, res) => {
     try {
         const time = new Date(req.body.Month)
-        const abc = new Date(time.getFullYear(), time.getMonth() + 1)
+        const abc = new Date(time.getFullYear(), time.getMonth() + 1, 0)
         const listRoom = await Room.find({ HouseId: req.body.HouseId }, 'RoomNumber Status').populate({
             path: 'ListUtilityBill',
             match: { Time: abc }

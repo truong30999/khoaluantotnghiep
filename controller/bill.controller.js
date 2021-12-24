@@ -86,6 +86,9 @@ exports.updateStatus = async (req, res) => {
     try {
         const bill = await Bill.findById(req.params.billId)
         const room = await Room.findById(bill.RoomId)
+        if (bill.Status === 1) {
+            return res.json({ error: "Hóa đơn đã thanh toán" })
+        }
         bill.Status = 1
         const result = await bill.save()
         const date = bill.EndDate
@@ -137,7 +140,7 @@ exports.getBillInMonthOfUser = async (req, res) => {
     // có month và houseId
     try {
         const date = new Date(req.body.Month)
-        const currentMonth = new Date(date.getFullYear(), date.getMonth() + 1)
+        const currentMonth = new Date(date.getFullYear(), date.getMonth() + 1, 0)
         const listRoom = await Room.find({ HouseId: req.body.HouseId }, 'RoomNumber Status').populate({
             path: 'ListBill',
             match: { EndDate: currentMonth }
@@ -159,8 +162,8 @@ exports.getAllBill = async (req, res) => {
 }
 exports.calculateBill = async (RoomId, Month) => {
     const date = new Date(Month)
-    const previousMonth = new Date(date.getFullYear(), date.getMonth())
-    const currentMonth = new Date(date.getFullYear(), date.getMonth() + 1)
+    const previousMonth = new Date(date.getFullYear(), date.getMonth(), 0)
+    const currentMonth = new Date(date.getFullYear(), date.getMonth() + 1, 0)
     const existBill = await Bill.find({ RoomId: RoomId, EndDate: currentMonth })
     if (existBill.length > 0) { return { "error": "Hóa đơn đã tồn tại" } }
     const bill = new Bill({

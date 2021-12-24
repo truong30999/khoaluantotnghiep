@@ -12,7 +12,7 @@ const { resolveSoa } = require('dns')
 
 exports.createRoom = async (req, res) => {
     const today = new Date()
-    const timeUtility = new Date(today.getFullYear(), today.getMonth())
+    const timeUtility = new Date(today.getFullYear(), today.getMonth(), 0)
     let imgArr = common.convertArrImage(req.files)
     const room = new Room({
         RoomNumber: req.body.RoomNumber,
