@@ -24,7 +24,7 @@ exports.remindUpdateElectricAndWater = async () => {
 }
 exports.test = async () => {
     const paramsAPI = {
-        "to": "efAXIF75Scq5Wg_ZfWsfSk:APA91bHUQIpsPtPVwiLxDh-k3olgOyQwt0ZDjHjf492dNugfoGknW3NVo3I8-BSOIy54ly6UhTjtJVsXKTECsdi79o6kbPo0hKVr_M7q_ocjf33di1faFdz-129dUJZ__w-o3mvKySN0",
+        "to": "eAjFzQvQTGy7T68lM-fVtG:APA91bFIngtwRxgbHOiKk4zuUO7zNC-jsf9u2-7JA7yOlx-S9u4JhwyUEEo62Y2uCW3KmRHcwCUiZAxvVZFEh33aggNE46XVuXR87dQ1cUqNIr4g9JcrWn_BR609sZQBffPpLyRqLW3h",
         "notification": {
             "title": "AppPhongTro",
             "body": `Đã có hóa đơn tháng ${9}`

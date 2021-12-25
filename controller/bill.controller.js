@@ -14,7 +14,7 @@ exports.recalculateBill = async (req, res) => {
     try {
         const bill = await Bill.findById(req.params.billId)
         const date = new Date(bill.EndDate)
-        const previousMonth = new Date(bill.StartDate)
+        const currentMonth = new Date(bill.EndDate)
         bill.TotalBill = 0
         bill.OtherCosts = ""
         const listUl = await UtilityBill.find({
@@ -52,8 +52,8 @@ exports.recalculateBill = async (req, res) => {
                     const paramsAPI = {
                         "to": customer.DeviceToken,
                         "notification": {
-                            "title": "AppPhongTro",
-                            "body": `Đã tính lại hóa đơn tháng ${(previousMonth.getMonth())}`
+                            "title": "Nhà Trọ Huy",
+                            "body": `Đã tính lại hóa đơn tháng ${(currentMonth.getMonth() + 1)}`
                         },
                         "priority": "high",
                         "data": {
@@ -220,7 +220,7 @@ exports.calculateBill = async (RoomId, Month) => {
                     const paramsAPI = {
                         "to": customer.DeviceToken,
                         "notification": {
-                            "title": "AppPhongTro",
+                            "title": "Nhà Trọ Huy",
                             "body": `Đã có hóa đơn tháng ${(currentMonth.getMonth() + 1)}`
                         },
                         "priority": "high",
