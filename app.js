@@ -13,7 +13,6 @@ require('dotenv').config()
 const User = require("./models/User.model");
 const app = express();
 const CronJobs = require("./controller/cronjob.controller")
-app.use()
 //app.use(cors());
 app.use(bodyParser.json());
 app.use((req, res, next) => {
