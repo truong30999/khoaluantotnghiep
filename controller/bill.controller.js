@@ -221,7 +221,7 @@ exports.calculateBill = async (RoomId, Month) => {
                         "to": customer.DeviceToken,
                         "notification": {
                             "title": "AppPhongTro",
-                            "body": `Đã có hóa đơn tháng ${(previousMonth.getMonth() + 1)}`
+                            "body": `Đã có hóa đơn tháng ${(currentMonth.getMonth() + 1)}`
                         },
                         "priority": "high",
                         "data": {

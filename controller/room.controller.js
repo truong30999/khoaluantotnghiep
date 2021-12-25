@@ -146,9 +146,7 @@ exports.addPersonToRoom = async (req, res) => {
         }
         customer.RoomId = req.params.roomId
         newRoom.ListPerson.push(req.params.customerId)
-        if (!newRoom.Status) {
-            newRoom.Status = 1
-        }
+        newRoom.Status = 1
         await newRoom.save()
         const result = await customer.save()
         res.json(result)
