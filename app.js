@@ -133,6 +133,8 @@ let remindjob = new CronJob('0 8 27 * *', () => {
 let users = [];
 
 const addUser = (userId, socketId) => {
+  console.log("addUser", userId)
+
   !users.some((user) => user.userId === userId) &&
     users.push({ userId, socketId });
 };
@@ -156,12 +158,14 @@ io.on("connection", (socket) => {
   });
 
   //send and get message
-  socket.on("sendMessage", ({ senderId, receiverId, text }) => {
+  socket.on("sendMessage", ({ senderId, receiverId, text, messageId }) => {
     const user = getUser(receiverId);
+
     if (user) {
       io.to(user.socketId).emit("getMessage", {
         senderId,
         text,
+        messageId
       });
     }
   });

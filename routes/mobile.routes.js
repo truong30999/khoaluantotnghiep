@@ -13,6 +13,7 @@ router.patch('/device-token', auth.validJWTNeeded, customer.updateDeviceInfo)
 
 router.get('/user/:userId', customer.getUserById)
 router.get('/message/:roomchatId', customer.getMessageOfRoomchat)
+router.get('/message/Id/:messageId', customer.getMessage)
 router.post('/message', customer.CreateMessage)
 
 router.get('/bill', auth.validJWTNeeded, customer.getListBillCustomer)

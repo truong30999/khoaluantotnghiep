@@ -23,3 +23,12 @@ exports.getMessageOfRoomchat = async (req, res) => {
         res.json(error);
     }
 }
+exports.getMessage = async (req, res) => {
+    // req.body.Roomchat , req.body.SenderId, req.body.Text
+    try {
+        const mesage = Message.findById(req.params.messageId)
+        res.json(mesage)
+    } catch (error) {
+        res.json(error);
+    }
+}

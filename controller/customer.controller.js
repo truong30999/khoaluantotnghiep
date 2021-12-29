@@ -431,7 +431,6 @@ exports.getMessageOfRoomchat = async (req, res) => {
             }
             result.push(message)
         }
-        console.log(result)
         res.json(result)
     } catch (error) {
         res.json(error);
@@ -444,6 +443,38 @@ exports.CreateMessage = async (req, res) => {
     try {
         const result = await newMessage.save()
         res.json(result)
+    } catch (error) {
+        res.json(error);
+    }
+}
+exports.getMessage = async (req, res) => {
+    // req.body.Roomchat , req.body.SenderId, req.body.Text
+    try {
+        Message.findById(req.params.messageId).then(async (value) => {
+            const message = {
+                _id: value._id,
+                text: value.Text,
+                createdAt: value.createdAt,
+                user: {
+                    _id: "",
+                    name: "",
+                    avatar: ""
+                }
+            }
+            if (value.Type === "Customer") {
+                const a = await Customer.findById(mongoose.Types.ObjectId(value.SenderId))
+                message.user._id = a._id
+                message.user.name = a.Name
+                message.user.avatar = a.Image[0]
+            }
+            if (value.Type === "User") {
+                const a = await User.findById(mongoose.Types.ObjectId(value.SenderId))
+                message.user._id = a._id
+                message.user.name = a.Name
+                message.user.avatar = a.Image
+            }
+            res.json(message)
+        })
     } catch (error) {
         res.json(error);
     }
