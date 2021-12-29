@@ -3,6 +3,7 @@ const Room = require('../models/Room.model')
 const Bill = require('../models/Bill.model')
 const Contract = require('../models/Contract.model')
 const House = require('../models/House.model')
+const User = require('../models/User.model')
 
 const common = require('../utility/common')
 const jwt = require('jsonwebtoken')
@@ -390,3 +391,11 @@ exports.updateDeviceInfo = async (req, res) => {
         res.json({ error: error })
     }
 }
+exports.getUserById = async (req, res) => {
+    try {
+        const user = await User.findById(req.params.userId);
+        res.json(user);
+    } catch (err) {
+        res.json({ message: err.message });
+    }
+};

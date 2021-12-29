@@ -8,10 +8,22 @@ const path = require("path");
 const UserController = require("./controller/user.controller");
 const CronJob = require('cron').CronJob;
 const CronTime = require('cron').CronTime;
-require('dotenv').config()
-//Start App
 const User = require("./models/User.model");
 const app = express();
+const server = require("http").createServer(app);
+const io = require("socket.io")(server, {
+  cors: {
+    origin: "*",
+  }
+});
+// Launch app to the specified port
+server.listen(config.port);
+
+require('dotenv').config()
+
+
+//Start App
+
 const CronJobs = require("./controller/cronjob.controller")
 //app.use(cors());
 app.use(bodyParser.json());
@@ -51,6 +63,10 @@ const registerRouter = require("./routes/register.routes");
 const contractRouter = require("./routes/contract.routes");
 const mobileRouter = require("./routes/mobile.routes")
 const statisticalRouter = require("./routes/statistical.routes")
+const roomchatRouter = require("./routes/chatroom.routes")
+const messageRouter = require("./routes/message.routes")
+
+
 app.use("/uploads/images", express.static(path.join("uploads", "images")));
 app.use("/user", userRouter);
 app.use("/room", roomRouter);
@@ -63,6 +79,9 @@ app.use("/bill", billRouter);
 app.use("/register", registerRouter);
 app.use("/contract", contractRouter)
 app.use("/statistical", statisticalRouter)
+app.use("/roomchat", roomchatRouter)
+app.use("/message", messageRouter)
+
 app.use("/api/mobile", mobileRouter)
 //routes
 
@@ -110,11 +129,52 @@ let remindjob = new CronJob('0 8 27 * *', () => {
 //   job.start()
 // }, 10000);
 
+// socketIO
+let users = [];
+
+const addUser = (userId, socketId) => {
+  !users.some((user) => user.userId === userId) &&
+    users.push({ userId, socketId });
+};
+
+const removeUser = (socketId) => {
+  users = users.filter((user) => user.socketId !== socketId);
+};
+
+const getUser = (userId) => {
+  return users.find((user) => user.userId === userId);
+};
+
+io.on("connection", (socket) => {
+  //when ceonnect
+  console.log("a user connected.");
+
+  //take userId and socketId from user
+  socket.on("addUser", (userId) => {
+    addUser(userId, socket.id);
+    //io.emit("getUsers", users);
+  });
+
+  //send and get message
+  socket.on("sendMessage", ({ senderId, receiverId, text }) => {
+    const user = getUser(receiverId);
+    io.to(user.socketId).emit("getMessage", {
+      senderId,
+      text,
+    });
+  });
+
+  //when disconnect
+  socket.on("disconnect", () => {
+    console.log("a user disconnected!");
+    removeUser(socket.id);
+    io.emit("getUsers", users);
+  });
+});
 //connect to db
 mongoose.connect(
   "mongodb+srv://truong:Khang250904@cluster0.xlqnr.mongodb.net/test1?retryWrites=true&w=majority",
   { useNewUrlParser: true, useUnifiedTopology: true, useFindAndModify: false },
   () => console.log("connect to db success")
 );
-// Launch app to the specified port
-app.listen(config.port);
+
