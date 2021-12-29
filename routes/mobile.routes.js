@@ -12,6 +12,8 @@ router.patch('/contract/confirm', customer.confirmContract)
 router.patch('/device-token', auth.validJWTNeeded, customer.updateDeviceInfo)
 
 router.get('/user/:userId', customer.getUserById)
+router.get('/message/:roomchatId', customer.getMessageOfRoomchat)
+router.post('/message', customer.CreateMessage)
 
 router.get('/bill', auth.validJWTNeeded, customer.getListBillCustomer)
 router.get('/bill/:billId', customer.getInfoBill)

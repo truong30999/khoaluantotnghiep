@@ -4,6 +4,7 @@ const Bill = require('../models/Bill.model')
 const Contract = require('../models/Contract.model')
 const House = require('../models/House.model')
 const User = require('../models/User.model')
+const Message = require('../models/Message.model')
 
 const common = require('../utility/common')
 const jwt = require('jsonwebtoken')
@@ -11,6 +12,8 @@ const fs = require('fs');
 const crypto = require("crypto");
 const config = require("../config/config")
 const AWS = require('aws-sdk');
+var mongoose = require('mongoose');
+const { response } = require('express')
 
 
 exports.createCustomer = async (req, res, next) => {
@@ -399,3 +402,49 @@ exports.getUserById = async (req, res) => {
         res.json({ message: err.message });
     }
 };
+exports.getMessageOfRoomchat = async (req, res) => {
+    try {
+        let result = []
+        const messages = await Message.find({ Roomchat: req.params.roomchatId }).sort({ createdAt: "asc" })
+        for (const value of messages) {
+            const message = {
+                _id: value._id,
+                text: value.Text,
+                createdAt: value.createdAt,
+                user: {
+                    _id: "",
+                    name: "",
+                    avatar: ""
+                }
+            }
+            if (value.Type === "Customer") {
+                const a = await Customer.findById(mongoose.Types.ObjectId(value.SenderId))
+                message.user._id = a._id
+                message.user.name = a.Name
+                message.user.avatar = a.Image[0]
+            }
+            if (value.Type === "User") {
+                const a = await User.findById(mongoose.Types.ObjectId(value.SenderId))
+                message.user._id = a._id
+                message.user.name = a.Name
+                message.user.avatar = a.Image
+            }
+            result.push(message)
+        }
+        console.log(result)
+        res.json(result)
+    } catch (error) {
+        res.json(error);
+    }
+}
+exports.CreateMessage = async (req, res) => {
+    // req.body.Roomchat , req.body.SenderId, req.body.Text
+    req.body.Type = "Customer"
+    const newMessage = new Message(req.body)
+    try {
+        const result = await newMessage.save()
+        res.json(result)
+    } catch (error) {
+        res.json(error);
+    }
+}

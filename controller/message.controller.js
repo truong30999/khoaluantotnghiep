@@ -6,6 +6,7 @@ const common = require("../utility/common");
 
 exports.CreateMessage = async (req, res) => {
     // req.body.Roomchat , req.body.SenderId, req.body.Text
+    req.body.Type = "User"
     const newMessage = new Message(req.body)
     try {
         const result = await newMessage.save()
