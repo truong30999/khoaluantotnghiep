@@ -1,13 +1,13 @@
 const Room = require('../models/Room.model')
 const House = require('../models/House.model')
+const Roomchat = require('../models/Roomchat.model')
+
 const Service = require('../models/Services.model')
 const Customer = require('../models/Customer.model')
 const config = require('../config/config')
 const common = require('../utility/common')
 const UtilityBill = require('../models/Utilitybills.model')
 const fs = require('fs');
-const { resolveSoa } = require('dns')
-
 
 
 exports.createRoom = async (req, res) => {
@@ -132,8 +132,11 @@ exports.deleteRoom = async (req, res) => {
 //them mot nguoi vao phong
 exports.addPersonToRoom = async (req, res) => {
     try {
-
-        const newRoom = await Room.findById(req.params.roomId)
+        const newRoom = await Room.findById(req.params.roomId).populate({
+            path: 'HouseId',
+            select: "Name",
+            populate: { path: 'UserId', select: "Name" }
+        })
         const customer = await Customer.findById(req.params.customerId)
         if (customer.RoomId) {
             const oldRoom = await Room.findById(customer.RoomId)
@@ -149,6 +152,12 @@ exports.addPersonToRoom = async (req, res) => {
         newRoom.Status = 1
         await newRoom.save()
         const result = await customer.save()
+
+        // Create chat between customer and user
+        const chatroom = new Roomchat({
+            Members: [customer._id, newRoom.HouseId.UserId._id]
+        })
+        await chatroom.save();
         res.json(result)
     } catch (error) {
         res.json({ message: error.message })

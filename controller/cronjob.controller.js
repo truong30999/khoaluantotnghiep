@@ -23,15 +23,10 @@ exports.remindUpdateElectricAndWater = async () => {
     }
 }
 exports.test = async () => {
-    const paramsAPI = {
-        "to": "eAjFzQvQTGy7T68lM-fVtG:APA91bFIngtwRxgbHOiKk4zuUO7zNC-jsf9u2-7JA7yOlx-S9u4JhwyUEEo62Y2uCW3KmRHcwCUiZAxvVZFEh33aggNE46XVuXR87dQ1cUqNIr4g9JcrWn_BR609sZQBffPpLyRqLW3h",
-        "notification": {
-            "title": "AppPhongTro",
-            "body": `Đã có hóa đơn tháng ${9}`
-        },
-        "priority": "high",
-        "data": {
-        }
-    }
-    await axios.post("https://fcm.googleapis.com/fcm/send", paramsAPI, { headers: { Authorization: 'key=' + config.API_FIREBASE_PUSH_NOTIFI } })
+    const newRoom = await Room.findById("617aa0c7c1580d46584f92af").populate({
+        path: 'HouseId',
+        select: "Name",
+        populate: { path: 'UserId', select: "Name" }
+    })
+    console.log(newRoom)
 }
