@@ -155,7 +155,7 @@ exports.addPersonToRoom = async (req, res) => {
 
         // Create chat between customer and user
         const chatroom = new Roomchat({
-            Members: [customer._id, newRoom.HouseId.UserId._id]
+            Members: [String(customer._id), String(newRoom.HouseId.UserId._id)]
         })
         await chatroom.save();
         res.json(result)
