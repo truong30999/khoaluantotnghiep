@@ -67,30 +67,35 @@ exports.loginGoogle = async (req, res) => {
                 let refresh_token = b.toString('base64');
                 res.json({ userId: exist_user._id, Email: exist_user.Email, accessToken: token, refreshToken: refresh_token });
             } else {
-                let salt = crypto.randomBytes(16).toString("base64");
-                let hash = crypto
-                    .createHmac("sha512", salt)
-                    .update("123456")
-                    .digest("base64");
-                const PassWord = salt + "$" + hash;
-                const new_user = new User({
-                    Name: name,
-                    Email: email,
-                    PassWord: PassWord,
-                    ActiveCode: getRandomInt(1000, 10000),
-                    Type: 1,
-                    Status: 1,
-                });
-                await new_user.save()
-                const payload = {
-                    userId: new_user._id,
-                    email: new_user.Email,
+                try {
+                    console.log("chưa tạo tk")
+                    let salt = crypto.randomBytes(16).toString("base64");
+                    let hash = crypto
+                        .createHmac("sha512", salt)
+                        .update("123456")
+                        .digest("base64");
+                    const PassWord = salt + "$" + hash;
+                    const new_user = new User({
+                        Name: name,
+                        Email: email,
+                        PassWord: PassWord,
+                        Type: 1,
+                        Status: 1,
+                    });
+                    await new_user.save()
+                    const payload = {
+                        userId: new_user._id,
+                        email: new_user.Email,
+                    }
+                    const rhash = crypto.createHmac('sha512', salt).update((new_user._id + config.jwtSecret)).digest("base64");
+                    let token = jwt.sign(payload, config.jwtSecret, { expiresIn: '1h' });
+                    let b = new Buffer(rhash);
+                    let refresh_token = b.toString('base64');
+                    res.json({ userId: new_user._id, Email: new_user.Email, accessToken: token, refreshToken: refresh_token });
+                } catch (error) {
+                    console.log(error)
                 }
-                const rhash = crypto.createHmac('sha512', salt).update((new_user._id + config.jwtSecret)).digest("base64");
-                let token = jwt.sign(payload, config.jwtSecret, { expiresIn: '1h' });
-                let b = new Buffer(rhash);
-                let refresh_token = b.toString('base64');
-                res.json({ userId: new_user._id, Email: new_user.Email, accessToken: token, refreshToken: refresh_token });
+
             }
         } else {
             res.json({ error: "Your email is not verified!" })
