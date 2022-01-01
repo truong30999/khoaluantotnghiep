@@ -49,7 +49,11 @@ exports.createCustomer = async (req, res, next) => {
             DeviceToken: null
         })
 
-        const room = await Room.findById(req.body.RoomId)
+        const room = await Room.findById(req.body.RoomId).populate({
+            path: 'HouseId',
+            select: "Name",
+            populate: { path: 'UserId', select: "Name" }
+        })
         if (room.ListPerson.length === 0) {
             room.Status = 1
         }
@@ -67,6 +71,13 @@ exports.createCustomer = async (req, res, next) => {
                 }
             }
         };
+
+        // Create chat between customer and user
+        const chatroom = new Roomchat({
+            Members: [String(customer._id), String(room.HouseId.UserId._id)]
+        })
+        await chatroom.save();
+
         const publishTextPromise = new AWS.SNS({ apiVersion: '2010-03-31' }).publish(params).promise();
         publishTextPromise.then(
             function (data) {
