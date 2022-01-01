@@ -2,6 +2,7 @@ const User = require('../models/User.model')
 const jwt = require('jsonwebtoken')
 const config = require('../config/config')
 const crypto = require('crypto');
+const { OAuth2Client } = require('google-auth-library');
 
 exports.isPasswordAndUserMatch = (req, res, next) => {
     User.findOne({ Email: req.body.Email })
@@ -41,7 +42,63 @@ exports.login = (req, res) => {
         res.status(500).send({ errors: err });
     }
 };
-
+exports.loginGoogle = async (req, res) => {
+    const client = new OAuth2Client(
+        config.GOOGLE_CLIENT_ID,
+        config.GOOGLE_CLIENT_SECRET
+    );
+    try {
+        const { clientId } = req.body
+        const verified = await client.verifyIdToken({ idToken: clientId, audience: config.GOOGLE_CLIENT_ID })
+        const { email_verified, email, name, picture } = verified.payload
+        if (email_verified) {
+            const exist_user = await User.findOne({ Email: email })
+            if (exist_user) {
+                let refreshId = exist_user._id + config.jwtSecret;
+                let salt = crypto.randomBytes(16).toString('base64');
+                let hash = crypto.createHmac('sha512', salt).update(refreshId).digest("base64");
+                const refreshKey = salt;
+                const payload = {
+                    userId: exist_user._id,
+                    email: exist_user.Email,
+                }
+                let token = jwt.sign(payload, config.jwtSecret, { expiresIn: '1h' });
+                let b = new Buffer(hash);
+                let refresh_token = b.toString('base64');
+                res.json({ userId: exist_user._id, Email: exist_user.Email, accessToken: token, refreshToken: refresh_token });
+            } else {
+                let salt = crypto.randomBytes(16).toString("base64");
+                let hash = crypto
+                    .createHmac("sha512", salt)
+                    .update("123456")
+                    .digest("base64");
+                const PassWord = salt + "$" + hash;
+                const new_user = new User({
+                    Name: name,
+                    Email: email,
+                    PassWord: PassWord,
+                    ActiveCode: getRandomInt(1000, 10000),
+                    Type: 1,
+                    Status: 1,
+                });
+                await new_user.save()
+                const payload = {
+                    userId: new_user._id,
+                    email: new_user.Email,
+                }
+                const rhash = crypto.createHmac('sha512', salt).update((new_user._id + config.jwtSecret)).digest("base64");
+                let token = jwt.sign(payload, config.jwtSecret, { expiresIn: '1h' });
+                let b = new Buffer(rhash);
+                let refresh_token = b.toString('base64');
+                res.json({ userId: new_user._id, Email: new_user.Email, accessToken: token, refreshToken: refresh_token });
+            }
+        } else {
+            res.json({ error: "Your email is not verified!" })
+        }
+    } catch (err) {
+        res.json({ error: err });
+    }
+};
 exports.hasAuthValidFields = (req, res, next) => {
     let errors = [];
 
