@@ -24,6 +24,7 @@ exports.remindUpdateElectricAndWater = async () => {
 }
 exports.test = async () => {
     //     61b4a2b5cb46ab3aa0585c72
-    const roomchat = await Roomchat.find({ Members: ["5ff33bd0abc73325a8163c6d", "61b4a2b5cb46ab3aa0585c72"] })
-    console.log(roomchat)
+    const existUtil = await UtilityBill.find({ RoomId: "61b8b868c29882160c20ac83", Time: { $lt: "2021-06-29T17:00:00.000+00:00" } })
+        .sort({ Time: 'desc' }).limit(1)
+    console.log(existUtil)
 }

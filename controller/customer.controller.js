@@ -168,8 +168,8 @@ exports.deleteCustomer = async (req, res) => {
             });
         });
     }
-    const roomchat = await Roomchat.find({ Members: [req.params.customerId, room.HouseId.UserId._id] })
-    await Roomchat.remove({ _id: roomchat._id })
+    const roomchat = await Roomchat.find({ Members: [String(req.params.customerId), String(room.HouseId.UserId._id)] })
+    await Roomchat.remove({ _id: roomchat[0]._id })
 
     const contracts = await Contract.find({ Renter: customer._id })
     for (const contract of contracts) {

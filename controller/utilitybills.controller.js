@@ -11,17 +11,39 @@ exports.createUtilityBills = async (req, res) => {
             res.json({ error: "Chỉ số đã tồn tại" })
             return
         }
-        const ult = new UtilityBill({
-            Time: abc,
-            ElectricNumber: req.body.ElectricNumber,
-            WaterNumber: req.body.WaterNumber,
-            RoomId: req.body.RoomId
-        })
-        const result = await ult.save()
-        const room = await Room.findById(req.body.RoomId)
-        room.ListUtilityBill.push(result["_id"])
-        await room.save()
-        res.json(result)
+        const prevUtil = await UtilityBill.find({ RoomId: req.body.RoomId, Time: abc }).sort({ Time: 'desc' }).limit(1)
+        if (prevUtil.length !== 0) {
+            if (prevUtil[0].ElectricNumber > req.body.ElectricNumber || prevUtil[0].WaterNumber > req.body.WaterNumber) {
+                res.json({ error: "Nhập sai chỉ số" })
+            }
+            else {
+                const ult = new UtilityBill({
+                    Time: abc,
+                    ElectricNumber: req.body.ElectricNumber,
+                    WaterNumber: req.body.WaterNumber,
+                    RoomId: req.body.RoomId
+                })
+                const result = await ult.save()
+                const room = await Room.findById(req.body.RoomId)
+                room.ListUtilityBill.push(result["_id"])
+                await room.save()
+                res.json(result)
+            }
+        }
+        else {
+            const ult = new UtilityBill({
+                Time: abc,
+                ElectricNumber: req.body.ElectricNumber,
+                WaterNumber: req.body.WaterNumber,
+                RoomId: req.body.RoomId
+            })
+            const result = await ult.save()
+            const room = await Room.findById(req.body.RoomId)
+            room.ListUtilityBill.push(result["_id"])
+            await room.save()
+            res.json(result)
+        }
+
     }
     catch (err) {
         res.json({ message: err })
