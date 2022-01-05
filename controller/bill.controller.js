@@ -5,6 +5,8 @@ const UtilityBill = require('../models/Utilitybills.model')
 const Statistical = require('../models/Statistical.model')
 const _ = require('underscore');
 const axios = require('axios');
+const NodeRSA = require('node-rsa');
+const crypto = require('crypto');
 const config = require("../config/config")
 exports.createBill = async (req, res) => {
     const result = await this.calculateBill(req.body.RoomId, req.body.Month)
@@ -77,6 +79,68 @@ exports.updateBill = async (req, res) => {
             { $set: update }
         )
         res.json(updateBill)
+    } catch (error) {
+        res.json({ message: error.message })
+    }
+}
+exports.confirmPayment = async (req, res) => {
+    const billId = req.params.billId
+    const bill = await Bill.findById(billId)
+    const requestId = config.MOMO.partnerCode + new Date().getTime()
+    const { fromapp, momoToken, phonenumber, message } = req.body
+    const urlmomo = " https://test-payment.momo.vn"
+    //create hash-----------------------------------------
+    const pubKey = '-----BEGIN PUBLIC KEY-----' + config.MOMO.public_key + '-----END PUBLIC KEY-----'
+    const key = new NodeRSA(pubKey, { encryptionScheme: 'pkcs1' });
+    const jsonData = {
+        "partnerCode": config.MOMO.partnerCode,
+        "partnerRefId": requestId,
+        "amount": bill.TotalBill
+    };
+    const encrypted = key.encrypt(JSON.stringify(jsonData), 'base64');
+    //----------------------------------------------------
+    try {
+        const data = {
+            partnerCode: config.MOMO.partnerCode,
+            partnerRefId: billId,
+            customerNumber: phonenumber,
+            appData: momoToken,
+            hash: encrypted,
+            payType: 3,
+            version: 3
+        }
+        axios.post(`${urlmomo}/pay/app`, data).then(async (response) => {
+            console.log(response.data)
+            if (response.data.status === 0) {
+                bill.Status = 1
+                await bill.save()
+                res.json({ message: "Thanh toán thành công", billId: billId })
+                //tạo chữ kí (signature)
+                const requestType = "capture"
+
+                const momoTransId = response.data.transid
+                const rawSignature = "partnerCode=" + config.MOMO.partnerCode + "&partnerRefId=" + billId + "&requestType=" + requestType + "&requestId=" + requestId + "&momoTransId=" + momoTransId
+                console.log("rawSignature", rawSignature)
+                const signature = crypto.createHmac('sha256', config.MOMO.secret_key)
+                    .update(rawSignature)
+                    .digest('hex');
+                console.log("signature ", signature)
+                axios.post(`${urlmomo}/pay/confirm`, {
+                    "partnerCode": config.MOMO.partnerCode,
+                    "partnerRefId": requestId,
+                    "requestType": requestType,
+                    "requestId": requestId,
+                    "momoTransId": momoTransId,
+                    "signature": signature,
+                    "customerNumber": phonenumber
+                }).then((res) => {
+                    console.log(res.data)
+                })
+            } else {
+                res.json({ error: "Thanh toán thất bại" })
+            }
+
+        })
     } catch (error) {
         res.json({ message: error.message })
     }

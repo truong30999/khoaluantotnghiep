@@ -1,7 +1,7 @@
 const Customer = require("../models/Customer.model")
 const Room = require("../models/Room.model")
 const House = require("../models/House.model")
-
+const Roomchat = require('../models/Roomchat.model')
 const common = require("../utility/common")
 const UtilityBill = require("../models/Utilitybills.model")
 const config = require("../config/config")
@@ -23,10 +23,7 @@ exports.remindUpdateElectricAndWater = async () => {
     }
 }
 exports.test = async () => {
-    const newRoom = await Room.findById("617aa0c7c1580d46584f92af").populate({
-        path: 'HouseId',
-        select: "Name",
-        populate: { path: 'UserId', select: "Name" }
-    })
-    console.log(newRoom)
+    //     61b4a2b5cb46ab3aa0585c72
+    const roomchat = await Roomchat.find({ Members: ["5ff33bd0abc73325a8163c6d", "61b4a2b5cb46ab3aa0585c72"] })
+    console.log(roomchat)
 }

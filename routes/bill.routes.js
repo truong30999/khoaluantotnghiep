@@ -5,6 +5,7 @@ const bill = require('../controller/bill.controller')
 
 //router.get('/currentmonth',bill.getBillInMonthOfUser)
 router.post('/', bill.createBill)
+router.post('/:billId/confirmPayment', bill.confirmPayment)
 router.patch('/', bill.getBillInMonthOfUser)
 router.patch('/:billId', bill.updateBill)
 router.patch('/:billId/status', bill.updateStatus)

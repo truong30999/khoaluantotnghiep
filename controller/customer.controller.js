@@ -5,6 +5,7 @@ const Contract = require('../models/Contract.model')
 const House = require('../models/House.model')
 const User = require('../models/User.model')
 const Message = require('../models/Message.model')
+const Roomchat = require('../models/Roomchat.model')
 
 const common = require('../utility/common')
 const jwt = require('jsonwebtoken')
@@ -149,7 +150,11 @@ exports.updateCustomer = async (req, res) => {
 }
 exports.deleteCustomer = async (req, res) => {
     const customer = await Customer.findById(req.params.customerId)
-    const room = await Room.findById(customer.RoomId)
+    const room = await Room.findById(customer.RoomId).populate({
+        path: 'HouseId',
+        select: "Name",
+        populate: { path: 'UserId', select: "Name" }
+    })
     const pos = room.ListPerson.indexOf(req.params.customerId)
     room.ListPerson.splice(pos, 1)
     if (room.ListPerson.length === 0) {
@@ -162,6 +167,13 @@ exports.deleteCustomer = async (req, res) => {
                 console.log(err);
             });
         });
+    }
+    const roomchat = await Roomchat.find({ Members: [req.params.customerId, room.HouseId.UserId._id] })
+    await Roomchat.remove({ _id: roomchat._id })
+
+    const contracts = await Contract.find({ Renter: customer._id })
+    for (const contract of contracts) {
+        await Contract.remove({ _id: contract._id })
     }
     try {
         const removeCustomer = await Customer.remove({ _id: req.params.customerId })

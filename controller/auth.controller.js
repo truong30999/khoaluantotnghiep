@@ -3,6 +3,7 @@ const jwt = require('jsonwebtoken')
 const config = require('../config/config')
 const crypto = require('crypto');
 const { OAuth2Client } = require('google-auth-library');
+const Service = require("../models/Services.model");
 
 exports.isPasswordAndUserMatch = (req, res, next) => {
     User.findOne({ Email: req.body.Email })
@@ -83,6 +84,7 @@ exports.loginGoogle = async (req, res) => {
                         Status: 1,
                     });
                     await new_user.save()
+                    this.initService(new_user._id)
                     const payload = {
                         userId: new_user._id,
                         email: new_user.Email,
@@ -152,4 +154,27 @@ exports.minimumPermissionLevelRequired = (required_permission_level) => {
             return res.status(403).send({ errors: "cannot access" });
         }
     };
+};
+exports.initService = async (userId) => {
+    const service1 = new Service({
+        ServiceName: "Điện",
+        Description: "Tiền điện",
+        Price: 3000,
+        UserId: userId,
+    });
+    const service2 = new Service({
+        ServiceName: "Nước",
+        Description: "Tiền Nước",
+        Price: 10000,
+        UserId: userId,
+    });
+    const service3 = new Service({
+        ServiceName: "Rác",
+        Description: "Tiền rác hàng tháng",
+        Price: 3000,
+        UserId: userId,
+    });
+    await service1.save();
+    await service2.save();
+    await service3.save();
 };

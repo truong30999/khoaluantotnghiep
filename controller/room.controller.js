@@ -1,6 +1,7 @@
 const Room = require('../models/Room.model')
 const House = require('../models/House.model')
 const Roomchat = require('../models/Roomchat.model')
+const Contract = require('../models/Contract.model')
 
 const Service = require('../models/Services.model')
 const Customer = require('../models/Customer.model')
@@ -152,11 +153,6 @@ exports.addPersonToRoom = async (req, res) => {
         newRoom.Status = 1
         await newRoom.save()
         const result = await customer.save()
-
-        // Create chat between customer and user
-        const chatroom = new Roomchat({
-            Members: [String(customer._id), String(newRoom.HouseId.UserId._id)]
-        })
         await chatroom.save();
         res.json(result)
     } catch (error) {
@@ -176,6 +172,7 @@ exports.removePersonToRoom = async (req, res) => {
         customer.RoomId = null
         await customer.save()
         const result = await room.save()
+        const contracts = await Contract.findOneAndUpdate({ Renter: customer._id, Room: room._id }, { Status: 0 })
         res.json(result)
     } catch (error) {
         res.json({ message: error.message })
@@ -185,9 +182,14 @@ exports.removePersonToRoom = async (req, res) => {
 exports.addServiceToRoom = async (req, res) => {
     try {
         const room = await Room.findById(req.params.roomId)
-        room.ListService.push(req.params.serviceId)
-        const result = await room.save()
-        res.json(result)
+        if (room.ListService.indexOf(req.params.serviceId) === -1) {
+            room.ListService.push(req.params.serviceId)
+            const result = await room.save()
+            res.json(result)
+        } else {
+            res.json({ error: "Dịch vụ đã tồn tại" })
+        }
+
     } catch (error) {
         res.json({ message: error.message })
     }
