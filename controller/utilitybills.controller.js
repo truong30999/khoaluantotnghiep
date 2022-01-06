@@ -11,7 +11,7 @@ exports.createUtilityBills = async (req, res) => {
             res.json({ error: "Chỉ số đã tồn tại" })
             return
         }
-        const prevUtil = await UtilityBill.find({ RoomId: req.body.RoomId, Time: abc }).sort({ Time: 'desc' }).limit(1)
+        const prevUtil = await UtilityBill.find({ RoomId: req.body.RoomId, Time: { $lt: abc } }).sort({ Time: 'desc' }).limit(1)
         if (prevUtil.length !== 0) {
             if (prevUtil[0].ElectricNumber > req.body.ElectricNumber || prevUtil[0].WaterNumber > req.body.WaterNumber) {
                 res.json({ error: "Nhập sai chỉ số" })
