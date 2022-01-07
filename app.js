@@ -24,7 +24,7 @@ const CronJobs = require("./controller/cronjob.controller")
 
 app.use(bodyParser.json());
 app.use((req, res, next) => {
-  res.header("Access-Control-Allow-Origin", "http://3.15.7.94:3000");
+  res.header("Access-Control-Allow-Origin", "http://ec2-18-219-191-240.us-east-2.compute.amazonaws.com:3000");
   res.header("Access-Control-Allow-Credentials", true);
   res.header("Access-Control-Allow-Methods", "GET,PUT,PATCH,POST,DELETE,OPTIONS");
   res.header(
