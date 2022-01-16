@@ -59,7 +59,7 @@ exports.deleteContract = async (req, res) => {
 //lấy contract theo nhà, phòng, người dùng
 exports.getContractOfUser = async (req, res) => {
     const today = new Date()
-    const res = await Contract.updateMany({ Lessor: req.jwt.userId, ExpirationDate: { $lt: today } }, { Status: -1 })
+    await Contract.updateMany({ Lessor: req.jwt.userId, ExpirationDate: { $lt: today } }, { Status: -1 })
     try {
         if (req.query.house) {
             const result = await Contract.find({ Lessor: req.jwt.userId, House: req.query.house })
